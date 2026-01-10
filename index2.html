@@ -700,11 +700,7 @@
         "Foto: druk op 📷",
         "Foto modus: druk op 🧩 of 🎨",
         "Tip: zoom uit om het plaatje te herkennen",
-      ].join("
-"));
-    }
-
-    const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+      ].join("\\n"));const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 
     function setZoom(v){
       zoom = clamp(v, Number(zoomRange.min), Number(zoomRange.max));
