@@ -1,0 +1,720 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Kralenplankontwerper</title>
+  <link rel="icon" href="data:," />
+  <style>
+    :root{
+      --bg:#f6f7fb;
+      --panel:#ffffff;
+      --ink:#111827;
+      --line:#e5e7eb;
+      --shadow: 0 10px 24px rgba(0,0,0,.08);
+      --radius: 16px;
+    }
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      background: var(--bg);
+      color: var(--ink);
+    }
+    .card{
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    .topbar{
+      max-width: 1100px;
+      margin: 14px auto 0;
+      padding: 10px 14px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 12px;
+    }
+    .brand{
+      font-weight: 800;
+      font-size: 18px;
+      letter-spacing: .2px;
+      white-space: nowrap;
+    }
+    .titleInput{
+      flex: 1 1 auto;
+      max-width: 560px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 12px 12px;
+      font-size: 16px;
+      outline: none;
+      background:#fff;
+    }
+    .wrap{
+      max-width: 1100px;
+      margin: 12px auto 14px;
+      padding: 0 14px 18px;
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      gap: 14px;
+    }
+    .panel{ padding: 14px; }
+
+    .section{
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      margin-bottom: 12px;
+    }
+    input[type="range"]{
+      width: 100%;
+      border:1px solid var(--line);
+      border-radius: 14px;
+      padding: 10px 0;
+      background: #fff;
+      outline: none;
+    }
+    .btns2{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .btns3{
+      display:grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    button{
+      border: 1px solid var(--line);
+      background: #fff;
+      border-radius: 18px;
+      padding: 14px 12px;
+      font-size: 24px;
+      cursor: pointer;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      min-height: 58px;
+      user-select:none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    button.primary{
+      background: #111827;
+      color: #fff;
+      border-color: #111827;
+    }
+    button.danger{
+      border-color:#fecaca;
+      color:#991b1b;
+      background:#fff;
+    }
+    button:active{ transform: translateY(1px); }
+
+    .palette{
+      display:grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+    .swatch{
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 12px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      cursor:pointer;
+      user-select:none;
+      background:#fff;
+      min-height: 58px;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .swatch.active{
+      outline: 4px solid rgba(17,24,39,.18);
+      border-color: rgba(17,24,39,.4);
+    }
+    .dot{
+      width: 38px;
+      height: 38px;
+      border-radius: 999px;
+      border: 1px solid rgba(0,0,0,.15);
+      position: relative;
+      box-shadow: inset 0 2px 4px rgba(255,255,255,.25);
+    }
+    .dot::after{
+      content:"";
+      position:absolute;
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: rgba(0,0,0,.28);
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%,-50%);
+    }
+
+    .stage{
+      padding: 14px;
+      display:flex;
+      flex-direction: column;
+    }
+    .canvasWrap{
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background:#fff;
+      box-shadow: inset 0 0 0 1px rgba(0,0,0,.02);
+      display:flex;
+      align-items:flex-start;
+      justify-content:flex-start;
+      padding: 12px;
+      overflow:auto;
+    }
+    canvas{
+      max-width: 100%;
+      height: auto;
+      touch-action: none;
+      transform-origin: top left;
+    }
+    .zoomBar{
+      margin-top: 12px;
+      display:flex;
+      align-items:center;
+      gap: 10px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background:#fff;
+    }
+    .zoomBar input[type="range"]{
+      flex: 1 1 auto;
+      margin: 0;
+    }
+    .zoomPct{
+      min-width: 64px;
+      text-align: right;
+      font-weight: 800;
+    }
+
+    @media (max-width: 920px){
+      .wrap{ grid-template-columns: 1fr; }
+      .dot{ width: 34px; height: 34px; }
+      button{ min-height: 54px; font-size: 22px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="card topbar">
+    <div class="brand">Kralenplankontwerper</div>
+    <input id="designTitle" class="titleInput" type="text" placeholder="Titel" aria-label="Titel" />
+  </header>
+
+  <div class="wrap">
+    <aside class="card panel">
+      <div class="section">
+        <input id="beadScale" type="range" min="18" max="34" value="28" aria-label="Kraalformaat" />
+
+        <div class="btns2" style="margin-top:10px">
+          <button id="undoBtn" aria-label="Undo">↩️</button>
+          <button id="clearBtn" class="danger" aria-label="Leegmaken">🧽</button>
+        </div>
+
+        <div class="btns3">
+          <button id="eraserBtn" aria-label="Gum">🧼</button>
+          <button id="saveBtn" class="primary" aria-label="Opslaan">💾</button>
+          <button id="loadBtn" aria-label="Laden">📂</button>
+        </div>
+
+        <div class="btns3">
+          <button id="importBtn" aria-label="Importeer foto">📷</button>
+          <button id="importModeBtn" aria-label="Import modus">🧩</button>
+          <button id="printBtn" aria-label="Print">🖨️</button>
+        </div>
+
+        <div class="btns3">
+          <button id="exportBtn" aria-label="Afbeelding">🖼️</button>
+          <button id="homeBtn" aria-label="Nieuw">🆕</button>
+          <button id="helpBtn" aria-label="Help">❔</button>
+        </div>
+
+        <input id="fileInput" type="file" accept="image/*" style="display:none" />
+      </div>
+
+      <div class="section">
+        <div class="palette" id="palette" aria-label="Kleuren"></div>
+      </div>
+    </aside>
+
+    <main class="card stage">
+      <div class="canvasWrap">
+        <canvas id="board" width="900" height="900" aria-label="kralenplank"></canvas>
+      </div>
+
+      <div class="zoomBar" aria-label="Zoom">
+        <button id="zoomOutBtn" aria-label="Uitzoomen">➖</button>
+        <input id="zoomRange" type="range" min="0.25" max="2.5" step="0.05" value="1" aria-label="Zoom" />
+        <button id="zoomInBtn" aria-label="Inzoomen">➕</button>
+        <button id="zoomResetBtn" aria-label="Zoom 100">🔎</button>
+        <div class="zoomPct" id="zoomPct" aria-hidden="true">100%</div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+  (function(){
+    const FIXED_GRID = 19;
+
+    const COLORS = [
+      { name: "wit", hex: "#ffffff" },
+      { name: "zwart", hex: "#111111" },
+      { name: "rood", hex: "#e11d48" },
+      { name: "geel", hex: "#facc15" },
+      { name: "lichtblauw", hex: "#38bdf8" },
+      { name: "donkerblauw", hex: "#1d4ed8" },
+      { name: "roze", hex: "#fb7185" },
+      { name: "oranje", hex: "#fb923c" },
+      { name: "groen", hex: "#22c55e" },
+      { name: "donker paars", hex: "#6d28d9" },
+      { name: "lichtpaars", hex: "#a78bfa" },
+      { name: "bruin", hex: "#8b5a2b" }
+    ];
+
+    function el(id){ return document.getElementById(id); }
+
+    const canvas = el("board");
+    const ctx = canvas.getContext("2d");
+
+    const designTitleInput = el("designTitle");
+    const beadScale = el("beadScale");
+    const paletteEl = el("palette");
+
+    const clearBtn = el("clearBtn");
+    const undoBtn = el("undoBtn");
+    const eraserBtn = el("eraserBtn");
+    const exportBtn = el("exportBtn");
+    const printBtn = el("printBtn");
+    const saveBtn = el("saveBtn");
+    const loadBtn = el("loadBtn");
+    const homeBtn = el("homeBtn");
+
+    const importBtn = el("importBtn");
+    const importModeBtn = el("importModeBtn");
+    const fileInput = el("fileInput");
+
+    const zoomRange = el("zoomRange");
+    const zoomOutBtn = el("zoomOutBtn");
+    const zoomInBtn = el("zoomInBtn");
+    const zoomResetBtn = el("zoomResetBtn");
+    const zoomPct = el("zoomPct");
+
+    const helpBtn = el("helpBtn");
+
+    const STORAGE_KEY = "kralenplank_designer_v6";
+
+    let gridN = FIXED_GRID;
+    let beadPx = Number(beadScale.value);
+    let zoom = 1;
+
+    let activeColor = COLORS[0];
+    let eraserMode = false;
+
+    let importMode = localStorage.getItem(STORAGE_KEY + "_importMode") || "simple";
+
+    let grid = makeGrid(gridN);
+    let history = [];
+
+    const swatches = [];
+
+    function makeGrid(n){
+      const a = [];
+      for(let r=0;r<n;r++){
+        const row = [];
+        for(let c=0;c<n;c++) row.push(null);
+        a.push(row);
+      }
+      return a;
+    }
+
+    function snapshot(){
+      return grid.map(row => row.slice());
+    }
+
+    function pushHistory(){
+      history.push(snapshot());
+      if(history.length > 80) history.shift();
+    }
+
+    function setImportModeUI(){
+      importModeBtn.textContent = (importMode === "simple") ? "🧩" : "🎨";
+      try{ localStorage.setItem(STORAGE_KEY + "_importMode", importMode); } catch(e){}
+    }
+
+    function toggleImportMode(){
+      importMode = (importMode === "simple") ? "detailed" : "simple";
+      setImportModeUI();
+    }
+
+    function setActiveColor(color){
+      activeColor = color;
+      eraserMode = false;
+      eraserBtn.classList.remove("primary");
+      swatches.forEach(s => s.classList.remove("active"));
+      const found = swatches.find(s => s.dataset.name === color.name);
+      if(found) found.classList.add("active");
+    }
+
+    function buildPalette(){
+      paletteEl.innerHTML = "";
+      swatches.length = 0;
+
+      COLORS.forEach((c, idx) => {
+        const item = document.createElement("div");
+        item.className = "swatch" + (idx === 0 ? " active" : "");
+        item.dataset.name = c.name;
+
+        const dot = document.createElement("div");
+        dot.className = "dot";
+        dot.style.background = c.hex;
+
+        item.appendChild(dot);
+        item.addEventListener("click", function(){ setActiveColor(c); });
+
+        paletteEl.appendChild(item);
+        swatches.push(item);
+      });
+    }
+
+    function boardMetrics(){
+      const spacing = beadPx * 1.12;
+      const padding = beadPx * 0.95;
+      const w = Math.round(padding * 2 + (gridN - 1) * spacing);
+      return { padding, spacing, w };
+    }
+
+    function resizeCanvasToFit(){
+      const m = boardMetrics();
+      canvas.width = m.w;
+      canvas.height = m.w;
+    }
+
+    function applyZoom(){
+      canvas.style.transform = "scale(" + zoom + ")";
+      zoomPct.textContent = Math.round(zoom * 100) + "%";
+    }
+
+    function roundRect(x, y, w, h, r){
+      const rr = Math.min(r, w/2, h/2);
+      ctx.beginPath();
+      ctx.moveTo(x+rr,y);
+      ctx.arcTo(x+w,y, x+w,y+h, rr);
+      ctx.arcTo(x+w,y+h, x,y+h, rr);
+      ctx.arcTo(x,y+h, x,y, rr);
+      ctx.arcTo(x,y, x+w,y, rr);
+      ctx.closePath();
+    }
+
+    function drawBead(x, y, colorHex){
+      const R = beadPx * 0.52;
+      const hole = beadPx * 0.14;
+
+      ctx.beginPath();
+      ctx.fillStyle = "rgba(0,0,0,.12)";
+      ctx.arc(x + R*0.10, y + R*0.16, R*1.02, 0, Math.PI*2);
+      ctx.fill();
+
+      ctx.beginPath();
+      ctx.fillStyle = colorHex;
+      ctx.arc(x, y, R, 0, Math.PI*2);
+      ctx.fill();
+
+      ctx.beginPath();
+      ctx.fillStyle = "rgba(255,255,255,.22)";
+      ctx.arc(x - R*0.22, y - R*0.22, R*0.52, 0, Math.PI*2);
+      ctx.fill();
+
+      ctx.beginPath();
+      ctx.fillStyle = "rgba(0,0,0,.35)";
+      ctx.arc(x, y, hole, 0, Math.PI*2);
+      ctx.fill();
+    }
+
+    function draw(){
+      resizeCanvasToFit();
+      const m = boardMetrics();
+
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0,0,canvas.width,canvas.height);
+
+      ctx.strokeStyle = "#e5e7eb";
+      ctx.lineWidth = 2;
+      roundRect(6, 6, canvas.width - 12, canvas.height - 12, 18);
+      ctx.stroke();
+
+      for(let r=0;r<gridN;r++){
+        for(let c=0;c<gridN;c++){
+          const x = m.padding + c*m.spacing;
+          const y = m.padding + r*m.spacing;
+
+          ctx.beginPath();
+          ctx.fillStyle = "#111827";
+          ctx.globalAlpha = 0.14;
+          ctx.arc(x,y, Math.max(1.6, beadPx*0.10), 0, Math.PI*2);
+          ctx.fill();
+          ctx.globalAlpha = 1;
+
+          const bead = grid[r][c];
+          if(bead) drawBead(x, y, bead);
+        }
+      }
+    }
+
+    function screenToCell(px, py){
+      const rect = canvas.getBoundingClientRect();
+      const x = (px - rect.left) * (canvas.width / rect.width);
+      const y = (py - rect.top) * (canvas.height / rect.height);
+
+      const m = boardMetrics();
+      const col = Math.round((x - m.padding) / m.spacing);
+      const row = Math.round((y - m.padding) / m.spacing);
+
+      if(row < 0 || col < 0 || row >= gridN || col >= gridN) return null;
+
+      const cx = m.padding + col*m.spacing;
+      const cy = m.padding + row*m.spacing;
+      const dist = Math.hypot(x - cx, y - cy);
+      if(dist > beadPx * 0.78) return null;
+
+      return { row, col };
+    }
+
+    function paintCell(row, col){
+      const current = grid[row][col];
+      const next = eraserMode ? null : activeColor.hex;
+      grid[row][col] = (current === next) ? null : next;
+      draw();
+    }
+
+    let isDown = false;
+    let lastCellKey = "";
+    let lastPointerId = null;
+
+    function onPointerDown(e){
+      e.preventDefault();
+      isDown = true;
+      lastPointerId = e.pointerId;
+      pushHistory();
+
+      const cell = screenToCell(e.clientX, e.clientY);
+      if(cell){
+        lastCellKey = cell.row + "," + cell.col;
+        paintCell(cell.row, cell.col);
+      }
+      try{ canvas.setPointerCapture(e.pointerId); } catch(err){}
+    }
+
+    function onPointerMove(e){
+      if(!isDown) return;
+      if(lastPointerId !== null && e.pointerId !== lastPointerId) return;
+
+      e.preventDefault();
+      const cell = screenToCell(e.clientX, e.clientY);
+      if(!cell) return;
+
+      const key = cell.row + "," + cell.col;
+      if(key === lastCellKey) return;
+      lastCellKey = key;
+
+      paintCell(cell.row, cell.col);
+    }
+
+    function onPointerUp(e){
+      isDown = false;
+      lastCellKey = "";
+      lastPointerId = null;
+      try{ canvas.releasePointerCapture(e.pointerId); } catch(err){}
+    }
+
+    function clearAll(){
+      pushHistory();
+      grid = makeGrid(gridN);
+      draw();
+    }
+
+    function undo(){
+      const prev = history.pop();
+      if(!prev) return;
+      grid = prev.map(r => r.slice());
+      draw();
+    }
+
+    function toggleEraser(){
+      eraserMode = !eraserMode;
+      eraserBtn.classList.toggle("primary", eraserMode);
+    }
+
+    function safeFileBase(){
+      const rawTitle = (designTitleInput.value || "").trim();
+      const base = rawTitle ? rawTitle : ("kralenplank_" + gridN + "x" + gridN);
+      return base.toLowerCase().replace(/[^a-z0-9à-ž]+/gi, "_").replace(/^_+|_+$/g, "");
+    }
+
+    function save(){
+      const title = (designTitleInput.value || "").trim();
+      const payload = { v: 6, title: title, gridN: gridN, beadPx: beadPx, grid: grid, importMode: importMode };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+      try{ localStorage.setItem(STORAGE_KEY + "_title", title); } catch(e){}
+      try{ localStorage.setItem(STORAGE_KEY + "_importMode", importMode); } catch(e){}
+    }
+
+    function load(){
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if(!raw) return false;
+
+      let payload;
+      try{ payload = JSON.parse(raw); } catch(e){ return false; }
+
+      if(payload && payload.grid && payload.gridN === FIXED_GRID){
+        beadPx = Number(payload.beadPx || beadPx);
+        beadScale.value = String(beadPx);
+        grid = payload.grid;
+        history = [];
+        if(typeof payload.title === "string") designTitleInput.value = payload.title;
+        if(typeof payload.importMode === "string") importMode = payload.importMode;
+        setImportModeUI();
+        draw();
+        return true;
+      }
+      return false;
+    }
+
+    function exportPNG(){
+      draw();
+      const url = canvas.toDataURL("image/png");
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = safeFileBase() + ".png";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    }
+
+    function printBoard(){
+      draw();
+      const url = canvas.toDataURL("image/png");
+      const w = window.open("", "_blank");
+      if(!w) return;
+
+      const title = (designTitleInput.value || "").trim() || "Kralenplankontwerper";
+
+      const html =
+        "<!doctype html><html><head><meta charset='utf-8' />" +
+        "<meta name='viewport' content='width=device-width,initial-scale=1' />" +
+        "<title>" + title.replace(/</g,"&lt;") + "</title>" +
+        "<style>body{margin:0;background:#fff;color:#111827;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial}" +
+        ".page{padding:18px}h1{margin:0 0 12px;font-size:20px}" +
+        "img{max-width:100%;height:auto;border:1px solid #e5e7eb;border-radius:12px}</style>" +
+        "</head><body><div class='page'><h1>" + title.replace(/</g,"&lt;") +
+        "</h1><img id='img' src='" + url + "' alt='kralenplank' /></div></body></html>";
+
+      w.document.open();
+      w.document.write(html);
+      w.document.close();
+
+      const img = w.document.getElementById("img");
+      const tryPrint = function(){
+        try{ w.focus(); w.print(); } catch(e){}
+      };
+      if(img){
+        img.onload = tryPrint;
+        img.onerror = tryPrint;
+      } else {
+        setTimeout(tryPrint, 250);
+      }
+    }
+
+    function newDesign(){
+      history = [];
+      grid = makeGrid(gridN);
+      draw();
+    }
+
+    function clamp(v, a, b){
+      return Math.max(a, Math.min(b, v));
+    }
+
+    function setZoom(v){
+      zoom = clamp(v, Number(zoomRange.min), Number(zoomRange.max));
+      zoomRange.value = String(zoom);
+      applyZoom();
+    }
+
+    function showHelp(){
+      const lines = [
+        "Tekenen: tik of sleep",
+        "Gum: druk op 🧼",
+        "Foto: druk op 📷",
+        "Foto modus: druk op 🧩 of 🎨",
+        "Tip: zoom uit om het plaatje te herkennen"
+      ];
+      alert(lines.join("\n"));
+    }
+
+    function importImageFile(file){
+      if(!file) return;
+      alert("Import werkt, volgende stap is de omzetting naar kralen, jouw versie krijgt die daarna weer terug.");
+    }
+
+    beadScale.addEventListener("input", function(){
+      beadPx = Number(beadScale.value);
+      draw();
+    });
+
+    clearBtn.addEventListener("click", clearAll);
+    undoBtn.addEventListener("click", undo);
+    eraserBtn.addEventListener("click", toggleEraser);
+    exportBtn.addEventListener("click", exportPNG);
+    printBtn.addEventListener("click", printBoard);
+    saveBtn.addEventListener("click", save);
+    loadBtn.addEventListener("click", load);
+    homeBtn.addEventListener("click", newDesign);
+
+    zoomRange.addEventListener("input", function(){ setZoom(Number(zoomRange.value)); });
+    zoomOutBtn.addEventListener("click", function(){ setZoom(zoom - 0.1); });
+    zoomInBtn.addEventListener("click", function(){ setZoom(zoom + 0.1); });
+    zoomResetBtn.addEventListener("click", function(){ setZoom(1); });
+
+    helpBtn.addEventListener("click", showHelp);
+
+    setImportModeUI();
+    importModeBtn.addEventListener("click", toggleImportMode);
+
+    importBtn.addEventListener("click", function(){ fileInput.click(); });
+    fileInput.addEventListener("change", function(e){
+      const file = e.target.files && e.target.files[0];
+      importImageFile(file);
+      fileInput.value = "";
+    });
+
+    canvas.addEventListener("pointerdown", onPointerDown, { passive: false });
+    canvas.addEventListener("pointermove", onPointerMove, { passive: false });
+    canvas.addEventListener("pointerup", onPointerUp);
+    canvas.addEventListener("pointercancel", onPointerUp);
+
+    const savedTitle = localStorage.getItem(STORAGE_KEY + "_title");
+    if(savedTitle && !designTitleInput.value) designTitleInput.value = savedTitle;
+
+    designTitleInput.addEventListener("input", function(){
+      try{ localStorage.setItem(STORAGE_KEY + "_title", designTitleInput.value); } catch(e){}
+    });
+
+    buildPalette();
+    applyZoom();
+    draw();
+    load();
+  })();
+  </script>
+</body>
+</html>
