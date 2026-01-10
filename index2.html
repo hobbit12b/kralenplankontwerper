@@ -677,9 +677,11 @@
     }
 
     function showHelp(){
-  alert("Tekenen: tik of sleep\nGum: druk op 🧼\nFoto: druk op 📷");
-}
-
+      alert("Tekenen: tik of sleep
+Gum: druk op 🧼
+Foto: druk op 📷
+Tip: zoom uit om het plaatje te herkennen");
+    }
 
     const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 
@@ -690,61 +692,139 @@
     }
 
     function importImageFile(file){
-  if(!file) return;
+      if(!file) return;
 
-  const url = URL.createObjectURL(file);
-  const img = new Image();
+      const url = URL.createObjectURL(file);
+      const img = new Image();
 
-  img.onload = () => {
-    try{
-      pushHistory();
+      img.onload = () => {
+        try{
+          pushHistory();
 
-      const off = document.createElement("canvas");
-      off.width = gridN;
-      off.height = gridN;
-      const octx = off.getContext("2d", { willReadFrequently: true });
+          // Werk op hogere resolutie voor scherpere contouren, daarna terug naar 19x19
+          const BIG = gridN * 10; // 190
+          const off = document.createElement("canvas");
+          off.width = BIG;
+          off.height = BIG;
+          const octx = off.getContext("2d", { willReadFrequently: true });
 
-      const side = Math.min(img.width, img.height);
-      const sx = Math.floor((img.width - side) / 2);
-      const sy = Math.floor((img.height - side) / 2);
+          // cover crop naar vierkant
+          const side = Math.min(img.width, img.height);
+          const sx = Math.floor((img.width - side) / 2);
+          const sy = Math.floor((img.height - side) / 2);
 
-      octx.clearRect(0,0,gridN,gridN);
-      octx.drawImage(img, sx, sy, side, side, 0, 0, gridN, gridN);
+          octx.clearRect(0,0,BIG,BIG);
+          octx.drawImage(img, sx, sy, side, side, 0, 0, BIG, BIG);
 
-      const data = octx.getImageData(0,0,gridN,gridN).data;
-      const next = makeGrid(gridN);
+          // pixels ophalen
+          const imgData = octx.getImageData(0,0,BIG,BIG);
+          const d = imgData.data;
 
-      for(let r=0;r<gridN;r++){
-        for(let c=0;c<gridN;c++){
-          const i = (r*gridN + c) * 4;
-          const rr = data[i];
-          const gg = data[i+1];
-          const bb = data[i+2];
-          const aa = data[i+3];
-
-          if(aa < 30){
-            next[r][c] = null;
-            continue;
+          // 1) simpele contrast boost (maakt dunne lijnen beter zichtbaar)
+          // contrast factor: 1.25
+          const contrast = 1.25;
+          const intercept = 128 * (1 - contrast);
+          for(let i=0;i<d.length;i+=4){
+            d[i]   = clamp(Math.round(d[i]   * contrast + intercept), 0, 255);
+            d[i+1] = clamp(Math.round(d[i+1] * contrast + intercept), 0, 255);
+            d[i+2] = clamp(Math.round(d[i+2] * contrast + intercept), 0, 255);
           }
 
-          next[r][c] = nearestPaletteHex(rr, gg, bb);
+          // 2) edge detect (Sobel) op grijs, voor zwarte contouren
+          const gray = new Uint8ClampedArray(BIG*BIG);
+          for(let y=0;y<BIG;y++){
+            for(let x=0;x<BIG;x++){
+              const i = (y*BIG + x) * 4;
+              // luminance
+              gray[y*BIG + x] = (d[i]*0.2126 + d[i+1]*0.7152 + d[i+2]*0.0722) | 0;
+            }
+          }
+
+          const edges = new Uint8ClampedArray(BIG*BIG);
+          for(let y=1;y<BIG-1;y++){
+            for(let x=1;x<BIG-1;x++){
+              const a00 = gray[(y-1)*BIG + (x-1)];
+              const a01 = gray[(y-1)*BIG + (x)];
+              const a02 = gray[(y-1)*BIG + (x+1)];
+              const a10 = gray[(y)*BIG + (x-1)];
+              const a12 = gray[(y)*BIG + (x+1)];
+              const a20 = gray[(y+1)*BIG + (x-1)];
+              const a21 = gray[(y+1)*BIG + (x)];
+              const a22 = gray[(y+1)*BIG + (x+1)];
+
+              const gx = (-a00 + a02) + (-2*a10 + 2*a12) + (-a20 + a22);
+              const gy = (-a00 - 2*a01 - a02) + (a20 + 2*a21 + a22);
+              const mag = Math.abs(gx) + Math.abs(gy);
+
+              edges[y*BIG + x] = mag > 180 ? 255 : 0; // drempel
+            }
+          }
+
+          // 3) terug naar 19x19 met gemiddelden per cel
+          const cell = BIG / gridN; // 10
+          const next = makeGrid(gridN);
+
+          // achtergrond als leeg: bijna wit
+          const WHITE_T = 242;
+
+          for(let r=0;r<gridN;r++){
+            for(let c=0;c<gridN;c++){
+              const x0 = Math.floor(c * cell);
+              const y0 = Math.floor(r * cell);
+              const x1 = Math.floor((c+1) * cell);
+              const y1 = Math.floor((r+1) * cell);
+
+              let sr=0, sg=0, sb=0, n=0;
+              let edgeCount=0, tot=0;
+
+              for(let y=y0;y<y1;y++){
+                for(let x=x0;x<x1;x++){
+                  const p = (y*BIG + x) * 4;
+                  sr += d[p];
+                  sg += d[p+1];
+                  sb += d[p+2];
+                  n++;
+
+                  tot++;
+                  if(edges[y*BIG + x]) edgeCount++;
+                }
+              }
+
+              const rr = Math.round(sr / n);
+              const gg = Math.round(sg / n);
+              const bb = Math.round(sb / n);
+
+              // als er genoeg contour in dit vakje zit, forceer zwart
+              const edgeRatio = edgeCount / tot;
+              if(edgeRatio > 0.22){
+                next[r][c] = "#111111";
+                continue;
+              }
+
+              // bijna wit: leeg laten
+              if(rr > WHITE_T && gg > WHITE_T && bb > WHITE_T){
+                next[r][c] = null;
+                continue;
+              }
+
+              next[r][c] = nearestPaletteHex(rr, gg, bb);
+            }
+          }
+
+          grid = next;
+          draw();
+        } finally {
+          try{ URL.revokeObjectURL(url); } catch {}
         }
-      }
+      };
 
-      grid = next;
-      draw();
-    } finally {
-      try{ URL.revokeObjectURL(url); } catch {}
+      img.onerror = () => {
+        try{ URL.revokeObjectURL(url); } catch {}
+        alert("Deze foto lukt niet");
+      };
+
+      img.src = url;
     }
-  };
-
-  img.onerror = () => {
-    try{ URL.revokeObjectURL(url); } catch {}
-    alert("Deze foto lukt niet");
-  };
-
-  img.src = url;
-}
 
     beadScale.addEventListener("input", () => {
       beadPx = Number(beadScale.value);
