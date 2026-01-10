@@ -532,9 +532,6 @@ document.getElementById("btnApplyImport").addEventListener("click", async () => 
       document.getElementById("projectFile").click();
     });
 
-const el = document.getElementById("recents");
-      el.scrollIntoView({behavior:"smooth", block:"start"});
-    });
 
     document.getElementById("btnSave").addEventListener("click", async () => {
       const design = serialize();
