@@ -717,6 +717,7 @@
       if(importMode === "simple") importModeBtn.textContent = "🧩";
       else if(importMode === "detailed") importModeBtn.textContent = "🎨";
       else importModeBtn.textContent = "✂️";
+
       try{ localStorage.setItem(STORAGE_KEY + "_importMode", importMode); } catch {}
     } catch {}
     }
