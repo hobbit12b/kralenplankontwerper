@@ -601,30 +601,41 @@
     }
 
     function printBoard(){
-      draw();
-      const url = canvas.toDataURL("image/png");
-      const w = window.open("", "_blank");
-      if(!w) return alert("Pop up geblokkeerd, sta pop ups toe voor printen");
+  draw();
+  const url = canvas.toDataURL("image/png");
+  const w = window.open("", "_blank");
+  if(!w) return alert("Pop up geblokkeerd, sta pop ups toe voor printen");
 
-      w.document.write(`
-        <html>
-          <head>
-            <title>Print kralenplank</title>
-            <style>
-              body{margin:0;display:flex;align-items:center;justify-content:center;background:#fff}
-              img{max-width: 95vw; max-height: 95vh}
-            </style>
-          </head>
-          <body>
-            <img src="${url}" alt="kralenplank" />
-            <script>
-              window.onload = () => { window.print(); };
-            </script>
-          </body>
-        </html>
-      `);
-      w.document.close();
-    }
+  w.document.open();
+  w.document.write(`
+    <html>
+      <head>
+        <title>Print kralenplank</title>
+        <meta name="viewport" content="width=device-width,initial-scale=1" />
+        <style>
+          body{margin:0;display:flex;align-items:center;justify-content:center;background:#fff}
+          img{max-width:95vw;max-height:95vh}
+        </style>
+      </head>
+      <body>
+        <img id="img" src="${url}" alt="kralenplank" />
+      </body>
+    </html>
+  `);
+  w.document.close();
+
+  const img = w.document.getElementById("img");
+  const tryPrint = () => {
+    try { w.focus(); w.print(); } catch {}
+  };
+
+  if(img){
+    img.onload = () => tryPrint();
+    img.onerror = () => tryPrint();
+  } else {
+    setTimeout(() => tryPrint(), 250);
+  }
+}
 
     function toggleEraser(){
       eraserMode = !eraserMode;
