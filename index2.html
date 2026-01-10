@@ -10,10 +10,12 @@
       --bg:#f6f7fb;
       --panel:#ffffff;
       --ink:#111827;
+      --muted:#6b7280;
       --line:#e5e7eb;
       --shadow: 0 10px 24px rgba(0,0,0,.08);
       --radius: 16px;
     }
+
     html,body{height:100%}
     body{
       margin:0;
@@ -21,13 +23,7 @@
       background: var(--bg);
       color: var(--ink);
     }
-    .card{
-      background: var(--panel);
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      overflow: hidden;
-    }
+
     .topbar{
       max-width: 1100px;
       margin: 14px auto 0;
@@ -37,12 +33,22 @@
       justify-content:space-between;
       gap: 12px;
     }
+
+    .card{
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
     .brand{
       font-weight: 800;
       font-size: 18px;
       letter-spacing: .2px;
       white-space: nowrap;
     }
+
     .titleInput{
       flex: 1 1 auto;
       max-width: 560px;
@@ -53,6 +59,7 @@
       outline: none;
       background:#fff;
     }
+
     .wrap{
       max-width: 1100px;
       margin: 12px auto 14px;
@@ -61,6 +68,7 @@
       grid-template-columns: 320px 1fr;
       gap: 14px;
     }
+
     .panel{ padding: 14px; }
 
     .section{
@@ -69,6 +77,7 @@
       border-radius: 14px;
       margin-bottom: 12px;
     }
+
     input[type="range"]{
       width: 100%;
       border:1px solid var(--line);
@@ -77,17 +86,20 @@
       background: #fff;
       outline: none;
     }
+
     .btns2{
       display:grid;
       grid-template-columns: 1fr 1fr;
       gap: 10px;
     }
+
     .btns3{
       display:grid;
       grid-template-columns: 1fr 1fr 1fr;
       gap: 10px;
       margin-top: 10px;
     }
+
     button{
       border: 1px solid var(--line);
       background: #fff;
@@ -102,16 +114,19 @@
       user-select:none;
       -webkit-tap-highlight-color: transparent;
     }
+
     button.primary{
       background: #111827;
       color: #fff;
       border-color: #111827;
     }
+
     button.danger{
       border-color:#fecaca;
       color:#991b1b;
       background:#fff;
     }
+
     button:active{ transform: translateY(1px); }
 
     .palette{
@@ -119,6 +134,7 @@
       grid-template-columns: repeat(3, 1fr);
       gap: 10px;
     }
+
     .swatch{
       border: 1px solid var(--line);
       border-radius: 18px;
@@ -132,18 +148,22 @@
       min-height: 58px;
       -webkit-tap-highlight-color: transparent;
     }
+
     .swatch.active{
       outline: 4px solid rgba(17,24,39,.18);
       border-color: rgba(17,24,39,.4);
     }
+
     .dot{
       width: 38px;
       height: 38px;
       border-radius: 999px;
       border: 1px solid rgba(0,0,0,.15);
+      flex: 0 0 auto;
       position: relative;
       box-shadow: inset 0 2px 4px rgba(255,255,255,.25);
     }
+
     .dot::after{
       content:"";
       position:absolute;
@@ -161,6 +181,7 @@
       display:flex;
       flex-direction: column;
     }
+
     .canvasWrap{
       border: 1px solid var(--line);
       border-radius: 18px;
@@ -172,12 +193,14 @@
       padding: 12px;
       overflow:auto;
     }
+
     canvas{
       max-width: 100%;
       height: auto;
       touch-action: none;
       transform-origin: top left;
     }
+
     .zoomBar{
       margin-top: 12px;
       display:flex;
@@ -188,10 +211,12 @@
       border-radius: 16px;
       background:#fff;
     }
+
     .zoomBar input[type="range"]{
       flex: 1 1 auto;
       margin: 0;
     }
+
     .zoomPct{
       min-width: 64px;
       text-align: right;
@@ -263,7 +288,7 @@
   </div>
 
   <script>
-  (function(){
+  (() => {
     const FIXED_GRID = 19;
 
     const COLORS = [
@@ -278,10 +303,10 @@
       { name: "groen", hex: "#22c55e" },
       { name: "donker paars", hex: "#6d28d9" },
       { name: "lichtpaars", hex: "#a78bfa" },
-      { name: "bruin", hex: "#8b5a2b" }
+      { name: "bruin", hex: "#8b5a2b" },
     ];
 
-    function el(id){ return document.getElementById(id); }
+    const el = (id) => document.getElementById(id);
 
     const canvas = el("board");
     const ctx = canvas.getContext("2d");
@@ -320,7 +345,12 @@
     let activeColor = COLORS[0];
     let eraserMode = false;
 
+    // Import modus
+    // simple: rustiger, herkenbaarder
+    // detailed: meer kleuren
     let importMode = localStorage.getItem(STORAGE_KEY + "_importMode") || "simple";
+    if(!["simple","detailed","silhouette"].includes(importMode)) importMode = "simple";
+    setImportModeUI();
 
     let grid = makeGrid(gridN);
     let history = [];
@@ -328,13 +358,7 @@
     const swatches = [];
 
     function makeGrid(n){
-      const a = [];
-      for(let r=0;r<n;r++){
-        const row = [];
-        for(let c=0;c<n;c++) row.push(null);
-        a.push(row);
-      }
-      return a;
+      return Array.from({length:n}, () => Array.from({length:n}, () => null));
     }
 
     function snapshot(){
@@ -346,22 +370,13 @@
       if(history.length > 80) history.shift();
     }
 
-    function setImportModeUI(){
-      importModeBtn.textContent = (importMode === "simple") ? "🧩" : "🎨";
-      try{ localStorage.setItem(STORAGE_KEY + "_importMode", importMode); } catch(e){}
-    }
-
-    function toggleImportMode(){
-      importMode = (importMode === "simple") ? "detailed" : "simple";
-      setImportModeUI();
-    }
-
     function setActiveColor(color){
       activeColor = color;
       eraserMode = false;
       eraserBtn.classList.remove("primary");
-      swatches.forEach(s => s.classList.remove("active"));
-      const found = swatches.find(s => s.dataset.name === color.name);
+
+      for(const s of swatches) s.classList.remove("active");
+      const found = swatches.find(x => x.dataset.name === color.name);
       if(found) found.classList.add("active");
     }
 
@@ -379,32 +394,59 @@
         dot.style.background = c.hex;
 
         item.appendChild(dot);
-        item.addEventListener("click", function(){ setActiveColor(c); });
+        item.addEventListener("click", () => setActiveColor(c));
 
         paletteEl.appendChild(item);
         swatches.push(item);
       });
     }
 
+    function hexToRgb(hex){
+      const h = hex.replace("#", "");
+      const v = parseInt(h, 16);
+      return { r: (v >> 16) & 255, g: (v >> 8) & 255, b: v & 255 };
+    }
+
+    const PALETTE_RGB = COLORS.map(c => ({ name: c.name, hex: c.hex, ...hexToRgb(c.hex) }));
+    const BLACK_HEX = "#111111";
+
+    function nearestFromList(r, g, b, list){
+      let best = list[0];
+      let bestD = Infinity;
+      for(const c of list){
+        const dr = r - c.r;
+        const dg = g - c.g;
+        const db = b - c.b;
+        const d = dr*dr + dg*dg + db*db;
+        if(d < bestD){ bestD = d; best = c; }
+      }
+      return best.hex;
+    }
+
+    function nearestPaletteHex(r, g, b){
+      return nearestFromList(r, g, b, PALETTE_RGB);
+    }
+
     function boardMetrics(){
+      const n = gridN;
       const spacing = beadPx * 1.12;
       const padding = beadPx * 0.95;
-      const w = Math.round(padding * 2 + (gridN - 1) * spacing);
-      return { padding, spacing, w };
+      const w = Math.round(padding * 2 + (n - 1) * spacing);
+      return { n, padding, spacing, w, h: w };
     }
 
     function resizeCanvasToFit(){
       const m = boardMetrics();
       canvas.width = m.w;
-      canvas.height = m.w;
+      canvas.height = m.h;
     }
 
     function applyZoom(){
-      canvas.style.transform = "scale(" + zoom + ")";
-      zoomPct.textContent = Math.round(zoom * 100) + "%";
+      canvas.style.transform = `scale(${zoom})`;
+      zoomPct.textContent = `${Math.round(zoom * 100)}%`;
     }
 
-    function roundRect(x, y, w, h, r){
+    function roundRect(ctx, x, y, w, h, r){
       const rr = Math.min(r, w/2, h/2);
       ctx.beginPath();
       ctx.moveTo(x+rr,y);
@@ -450,11 +492,11 @@
 
       ctx.strokeStyle = "#e5e7eb";
       ctx.lineWidth = 2;
-      roundRect(6, 6, canvas.width - 12, canvas.height - 12, 18);
+      roundRect(ctx, 6, 6, canvas.width - 12, canvas.height - 12, 18);
       ctx.stroke();
 
-      for(let r=0;r<gridN;r++){
-        for(let c=0;c<gridN;c++){
+      for(let r=0;r<m.n;r++){
+        for(let c=0;c<m.n;c++){
           const x = m.padding + c*m.spacing;
           const y = m.padding + r*m.spacing;
 
@@ -480,7 +522,7 @@
       const col = Math.round((x - m.padding) / m.spacing);
       const row = Math.round((y - m.padding) / m.spacing);
 
-      if(row < 0 || col < 0 || row >= gridN || col >= gridN) return null;
+      if(row < 0 || col < 0 || row >= m.n || col >= m.n) return null;
 
       const cx = m.padding + col*m.spacing;
       const cy = m.padding + row*m.spacing;
@@ -512,7 +554,7 @@
         lastCellKey = cell.row + "," + cell.col;
         paintCell(cell.row, cell.col);
       }
-      try{ canvas.setPointerCapture(e.pointerId); } catch(err){}
+      canvas.setPointerCapture(e.pointerId);
     }
 
     function onPointerMove(e){
@@ -534,7 +576,7 @@
       isDown = false;
       lastCellKey = "";
       lastPointerId = null;
-      try{ canvas.releasePointerCapture(e.pointerId); } catch(err){}
+      try{ canvas.releasePointerCapture(e.pointerId); } catch {}
     }
 
     function clearAll(){
@@ -555,18 +597,12 @@
       eraserBtn.classList.toggle("primary", eraserMode);
     }
 
-    function safeFileBase(){
-      const rawTitle = (designTitleInput.value || "").trim();
-      const base = rawTitle ? rawTitle : ("kralenplank_" + gridN + "x" + gridN);
-      return base.toLowerCase().replace(/[^a-z0-9à-ž]+/gi, "_").replace(/^_+|_+$/g, "");
-    }
-
     function save(){
       const title = (designTitleInput.value || "").trim();
-      const payload = { v: 6, title: title, gridN: gridN, beadPx: beadPx, grid: grid, importMode: importMode };
+      const payload = { v: 6, title, gridN, beadPx, grid, importMode };
       localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
-      try{ localStorage.setItem(STORAGE_KEY + "_title", title); } catch(e){}
-      try{ localStorage.setItem(STORAGE_KEY + "_importMode", importMode); } catch(e){}
+      try{ localStorage.setItem(STORAGE_KEY + "_title", title); } catch {}
+      try{ localStorage.setItem(STORAGE_KEY + "_importMode", importMode); } catch {}
     }
 
     function load(){
@@ -574,7 +610,8 @@
       if(!raw) return false;
 
       let payload;
-      try{ payload = JSON.parse(raw); } catch(e){ return false; }
+      try{ payload = JSON.parse(raw); }
+      catch { return false; }
 
       if(payload && payload.grid && payload.gridN === FIXED_GRID){
         beadPx = Number(payload.beadPx || beadPx);
@@ -590,12 +627,18 @@
       return false;
     }
 
+    function safeFileBase(){
+      const rawTitle = (designTitleInput.value || "").trim();
+      const base = rawTitle ? rawTitle : `kralenplank_${gridN}x${gridN}`;
+      return base.toLowerCase().replace(/[^a-z0-9à-ž]+/gi, "_").replace(/^_+|_+$/g, "");
+    }
+
     function exportPNG(){
       draw();
       const url = canvas.toDataURL("image/png");
       const a = document.createElement("a");
       a.href = url;
-      a.download = safeFileBase() + ".png";
+      a.download = `${safeFileBase()}.png`;
       document.body.appendChild(a);
       a.click();
       a.remove();
@@ -609,29 +652,39 @@
 
       const title = (designTitleInput.value || "").trim() || "Kralenplankontwerper";
 
-      const html =
-        "<!doctype html><html><head><meta charset='utf-8' />" +
-        "<meta name='viewport' content='width=device-width,initial-scale=1' />" +
-        "<title>" + title.replace(/</g,"&lt;") + "</title>" +
-        "<style>body{margin:0;background:#fff;color:#111827;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial}" +
-        ".page{padding:18px}h1{margin:0 0 12px;font-size:20px}" +
-        "img{max-width:100%;height:auto;border:1px solid #e5e7eb;border-radius:12px}</style>" +
-        "</head><body><div class='page'><h1>" + title.replace(/</g,"&lt;") +
-        "</h1><img id='img' src='" + url + "' alt='kralenplank' /></div></body></html>";
-
       w.document.open();
-      w.document.write(html);
+      w.document.write(`
+        <html>
+          <head>
+            <title>${title}</title>
+            <meta name="viewport" content="width=device-width,initial-scale=1" />
+            <style>
+              body{margin:0;background:#fff;color:#111827;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial}
+              .page{padding:18px}
+              h1{margin:0 0 12px;font-size:20px}
+              img{max-width:100%;height:auto;border:1px solid #e5e7eb;border-radius:12px}
+            </style>
+          </head>
+          <body>
+            <div class="page">
+              <h1>${title}</h1>
+              <img id="img" src="${url}" alt="kralenplank" />
+            </div>
+          </body>
+        </html>
+      `);
       w.document.close();
 
       const img = w.document.getElementById("img");
-      const tryPrint = function(){
-        try{ w.focus(); w.print(); } catch(e){}
+      const tryPrint = () => {
+        try { w.focus(); w.print(); } catch {}
       };
+
       if(img){
-        img.onload = tryPrint;
-        img.onerror = tryPrint;
+        img.onload = () => tryPrint();
+        img.onerror = () => tryPrint();
       } else {
-        setTimeout(tryPrint, 250);
+        setTimeout(() => tryPrint(), 250);
       }
     }
 
@@ -641,9 +694,17 @@
       draw();
     }
 
-    function clamp(v, a, b){
-      return Math.max(a, Math.min(b, v));
+    function showHelp(){
+      alert([
+        "Tekenen: tik of sleep",
+        "Gum: druk op 🧼",
+        "Foto: druk op 📷",
+        "Foto modus: druk op 🧩, ✂️ of 🎨",
+        "Tip: zoom uit om het plaatje te herkennen",
+      ].join("\n"));
     }
+
+    const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 
     function setZoom(v){
       zoom = clamp(v, Number(zoomRange.min), Number(zoomRange.max));
@@ -651,23 +712,453 @@
       applyZoom();
     }
 
-    function showHelp(){
-      const lines = [
-        "Tekenen: tik of sleep",
-        "Gum: druk op 🧼",
-        "Foto: druk op 📷",
-        "Foto modus: druk op 🧩 of 🎨",
-        "Tip: zoom uit om het plaatje te herkennen"
-      ];
-      alert(lines.join("\n"));
+    function setImportModeUI(){
+      // 🧩 = simple, 🎨 = detailed, ✂️ = silhouette
+      if(importMode === "simple") importModeBtn.textContent = "🧩";
+      else if(importMode === "detailed") importModeBtn.textContent = "🎨";
+      else importModeBtn.textContent = "✂️";
+      try{ localStorage.setItem(STORAGE_KEY + "_importMode", importMode); } catch {}
+    } catch {}
+    }
+
+    function toggleImportMode(){
+      // cycle: simple -> silhouette -> detailed -> simple
+      importMode = (importMode === "simple") ? "silhouette" : (importMode === "silhouette") ? "detailed" : "simple";
+      setImportModeUI();
+    }
+
+    function countNeighbors(gridLocal, r, c){
+      const v = gridLocal[r][c];
+      if(!v) return 0;
+      let n = 0;
+      for(let dr=-1; dr<=1; dr++){
+        for(let dc=-1; dc<=1; dc++){
+          if(dr===0 && dc===0) continue;
+          const rr = r + dr;
+          const cc = c + dc;
+          if(rr<0 || cc<0 || rr>=gridN || cc>=gridN) continue;
+          if(gridLocal[rr][cc]) n++;
+        }
+      }
+      return n;
+    }
+
+    function dilateBlack(gridLocal){
+      const out = gridLocal.map(row => row.slice());
+      for(let r=0;r<gridN;r++){
+        for(let c=0;c<gridN;c++){
+          if(gridLocal[r][c] !== BLACK_HEX) continue;
+          for(let dr=-1; dr<=1; dr++){
+            for(let dc=-1; dc<=1; dc++){
+              const rr = r + dr;
+              const cc = c + dc;
+              if(rr<0 || cc<0 || rr>=gridN || cc>=gridN) continue;
+              if(out[rr][cc] == null) out[rr][cc] = BLACK_HEX;
+            }
+          }
+        }
+      }
+      return out;
+    }
+
+    function pickKeepColorsDiverse(countsMap, maxColors){
+      // Herkenbaarheid: niet alleen de grootste vlakken, maar ook kleurvariatie bewaren.
+      const entries = Array.from(countsMap.entries()).sort((a,b) => b[1]-a[1]);
+      const present = new Set(entries.map(e => e[0]));
+
+      const keep = [];
+      if(present.has(BLACK_HEX)) keep.push(BLACK_HEX);
+
+      const rgbByHex = new Map(PALETTE_RGB.map(c => [c.hex, c]));
+
+      // eerste niet zwart, meest voorkomend
+      for(const [hex] of entries){
+        if(keep.includes(hex)) continue;
+        keep.push(hex);
+        break;
+      }
+
+      const dist2 = (a, b) => {
+        const dr = a.r - b.r;
+        const dg = a.g - b.g;
+        const db = a.b - b.b;
+        return dr*dr + dg*dg + db*db;
+      };
+
+      while(keep.length < maxColors){
+        let bestHex = null;
+        let bestScore = -1;
+
+        for(const [hex, cnt] of entries){
+          if(keep.includes(hex)) continue;
+          const cand = rgbByHex.get(hex);
+          if(!cand) continue;
+
+          let minD = Infinity;
+          for(const kh of keep){
+            const k = rgbByHex.get(kh);
+            if(!k) continue;
+            minD = Math.min(minD, dist2(cand, k));
+          }
+
+          // kleurverschil is hoofdzaak, frequentie helpt mee
+          const score = minD + cnt * 120;
+          if(score > bestScore){
+            bestScore = score;
+            bestHex = hex;
+          }
+        }
+
+        if(!bestHex) break;
+        keep.push(bestHex);
+      }
+
+      return keep;
+    }
+
+    function reducePalette(gridLocal, avgR, avgG, avgB, maxColors){
+      const counts = new Map();
+      for(let r=0;r<gridN;r++){
+        for(let c=0;c<gridN;c++){
+          const v = gridLocal[r][c];
+          if(!v) continue;
+          counts.set(v, (counts.get(v) || 0) + 1);
+        }
+      }
+
+      if(counts.size === 0) return gridLocal;
+
+      const keep = pickKeepColorsDiverse(counts, maxColors);
+      const allowed = PALETTE_RGB.filter(c => keep.includes(c.hex));
+
+      const out = makeGrid(gridN);
+      for(let r=0;r<gridN;r++){
+        for(let c=0;c<gridN;c++){
+          const v = gridLocal[r][c];
+          if(!v){ out[r][c] = null; continue; }
+          if(keep.includes(v)){
+            out[r][c] = v;
+            continue;
+          }
+          out[r][c] = nearestFromList(avgR[r][c], avgG[r][c], avgB[r][c], allowed);
+        }
+      }
+
+      return out;
+    }
+
+    function majoritySmooth(gridLocal, passes){
+      // Maakt het raster rustiger, handig voor 19x19.
+      let cur = gridLocal.map(row => row.slice());
+      const passCount = Math.max(1, passes || 1);
+
+      for(let p=0; p<passCount; p++){
+        const out = cur.map(row => row.slice());
+
+        for(let r=0;r<gridN;r++){
+          for(let c=0;c<gridN;c++){
+            const center = cur[r][c];
+            const freq = new Map();
+
+            for(let dr=-1; dr<=1; dr++){
+              for(let dc=-1; dc<=1; dc++){
+                const rr = r + dr;
+                const cc = c + dc;
+                if(rr<0 || cc<0 || rr>=gridN || cc>=gridN) continue;
+                const v = cur[rr][cc];
+                if(!v) continue;
+                freq.set(v, (freq.get(v) || 0) + 1);
+              }
+            }
+
+            if(freq.size === 0){
+              out[r][c] = null;
+              continue;
+            }
+
+            let best = null;
+            let bestN = -1;
+            for(const [hex, n] of freq.entries()){
+              if(n > bestN){ bestN = n; best = hex; }
+            }
+
+            if(center === BLACK_HEX){
+              out[r][c] = BLACK_HEX;
+              continue;
+            }
+
+            // als het onrustig is, kies meerderheid
+            if(!center && bestN >= 4) out[r][c] = best;
+            if(center && bestN >= 5) out[r][c] = best;
+          }
+        }
+
+        cur = out;
+      }
+
+      return cur;
+    }
+
+    function despeckle(gridLocal){
+      // haal losse spikkels weg, behalve zwart
+      const out = gridLocal.map(row => row.slice());
+      for(let r=0;r<gridN;r++){
+        for(let c=0;c<gridN;c++){
+          const v = gridLocal[r][c];
+          if(!v) continue;
+          if(v === BLACK_HEX) continue;
+          const n = countNeighbors(gridLocal, r, c);
+          if(n < 2) out[r][c] = null;
+        }
+      }
+      return out;
     }
 
     function importImageFile(file){
       if(!file) return;
-      alert("Import werkt, volgende stap is de omzetting naar kralen, jouw versie krijgt die daarna weer terug.");
+
+      const url = URL.createObjectURL(file);
+      const img = new Image();
+
+      img.onload = () => {
+        try{
+          pushHistory();
+
+          // Extra resolutie helpt de randdetectie
+          const BIG = gridN * 14; // 266
+          const off = document.createElement("canvas");
+          off.width = BIG;
+          off.height = BIG;
+          const octx = off.getContext("2d", { willReadFrequently: true });
+
+          // 1) eerst grof vierkant uitsnijden
+          const side0 = Math.min(img.width, img.height);
+          const sx0 = Math.floor((img.width - side0) / 2);
+          const sy0 = Math.floor((img.height - side0) / 2);
+
+          octx.clearRect(0,0,BIG,BIG);
+          // klein beetje blur om ruis te verminderen
+          octx.filter = (importMode === "simple") ? "blur(0.6px)" : "blur(0.3px)";
+          octx.drawImage(img, sx0, sy0, side0, side0, 0, 0, BIG, BIG);
+          octx.filter = "none";
+
+          // 2) probeer automatische uitsnede op basis van achtergrond
+          // achtergrondkleur: gemiddelde van de hoeken
+          const imgData0 = octx.getImageData(0,0,BIG,BIG);
+          const d0 = imgData0.data;
+
+          const sampleCorner = (x0, y0) => {
+            let sr=0, sg=0, sb=0, n=0;
+            const S = Math.max(6, Math.floor(BIG*0.05));
+            for(let y=y0; y<y0+S; y++){
+              for(let x=x0; x<x0+S; x++){
+                const i = (y*BIG + x) * 4;
+                sr += d0[i];
+                sg += d0[i+1];
+                sb += d0[i+2];
+                n++;
+              }
+            }
+            return { r: sr/n, g: sg/n, b: sb/n };
+          };
+
+          const c1 = sampleCorner(0,0);
+          const c2 = sampleCorner(BIG - Math.max(6, Math.floor(BIG*0.05)),0);
+          const c3 = sampleCorner(0, BIG - Math.max(6, Math.floor(BIG*0.05)));
+          const c4 = sampleCorner(BIG - Math.max(6, Math.floor(BIG*0.05)), BIG - Math.max(6, Math.floor(BIG*0.05)));
+          const bg = { r:(c1.r+c2.r+c3.r+c4.r)/4, g:(c1.g+c2.g+c3.g+c4.g)/4, b:(c1.b+c2.b+c3.b+c4.b)/4 };
+
+          const isBg = (r,g,b) => {
+            const dr=r-bg.r, dg=g-bg.g, db=b-bg.b;
+            const dist = Math.sqrt(dr*dr + dg*dg + db*db);
+            const t = (importMode === "detailed") ? 18 : (importMode === "silhouette") ? 30 : 26;
+            return dist < t;
+          };
+
+          let minX = BIG, minY = BIG, maxX = -1, maxY = -1;
+          for(let y=0;y<BIG;y++){
+            for(let x=0;x<BIG;x++){
+              const i = (y*BIG + x) * 4;
+              const r = d0[i], g = d0[i+1], b = d0[i+2], a = d0[i+3];
+              if(a < 10) continue;
+              if(isBg(r,g,b)) continue;
+              if(x < minX) minX = x;
+              if(y < minY) minY = y;
+              if(x > maxX) maxX = x;
+              if(y > maxY) maxY = y;
+            }
+          }
+
+          // fallback als bbox niet gevonden
+          if(maxX < 0){
+            minX = 0; minY = 0; maxX = BIG-1; maxY = BIG-1;
+          }
+
+          // marge rondom onderwerp, zodat het niet te strak wordt
+          const pad = Math.round(BIG * 0.06);
+          minX = clamp(minX - pad, 0, BIG-1);
+          minY = clamp(minY - pad, 0, BIG-1);
+          maxX = clamp(maxX + pad, 0, BIG-1);
+          maxY = clamp(maxY + pad, 0, BIG-1);
+
+          const bw = Math.max(1, maxX - minX + 1);
+          const bh = Math.max(1, maxY - minY + 1);
+          const side = Math.max(bw, bh);
+          const cx = minX + bw/2;
+          const cy = minY + bh/2;
+
+          const sx = clamp(Math.round(cx - side/2), 0, BIG - side);
+          const sy = clamp(Math.round(cy - side/2), 0, BIG - side);
+
+          // 3) herteken naar clean canvas (nog iets blur)
+          const clean = document.createElement("canvas");
+          clean.width = BIG;
+          clean.height = BIG;
+          const cctx = clean.getContext("2d", { willReadFrequently: true });
+          cctx.filter = (importMode === "simple") ? "blur(0.4px)" : "blur(0.2px)";
+          cctx.drawImage(off, sx, sy, side, side, 0, 0, BIG, BIG);
+          cctx.filter = "none";
+
+          const imgData = cctx.getImageData(0,0,BIG,BIG);
+          const d = imgData.data;
+
+          // contrast boost, maar niet te agressief
+          const contrast = (importMode === "simple") ? 1.28 : 1.15;
+          const intercept = 128 * (1 - contrast);
+          for(let i=0;i<d.length;i+=4){
+            d[i]   = clamp(Math.round(d[i]   * contrast + intercept), 0, 255);
+            d[i+1] = clamp(Math.round(d[i+1] * contrast + intercept), 0, 255);
+            d[i+2] = clamp(Math.round(d[i+2] * contrast + intercept), 0, 255);
+          }
+
+          // sobel edge detect
+          const gray = new Uint8ClampedArray(BIG*BIG);
+          for(let y=0;y<BIG;y++){
+            for(let x=0;x<BIG;x++){
+              const i = (y*BIG + x) * 4;
+              gray[y*BIG + x] = (d[i]*0.2126 + d[i+1]*0.7152 + d[i+2]*0.0722) | 0;
+            }
+          }
+
+          const edges = new Uint8ClampedArray(BIG*BIG);
+          const EDGE_T = (importMode === "detailed") ? 190 : (importMode === "silhouette") ? 165 : 150;
+          for(let y=1;y<BIG-1;y++){
+            for(let x=1;x<BIG-1;x++){
+              const a00 = gray[(y-1)*BIG + (x-1)];
+              const a01 = gray[(y-1)*BIG + (x)];
+              const a02 = gray[(y-1)*BIG + (x+1)];
+              const a10 = gray[(y)*BIG + (x-1)];
+              const a12 = gray[(y)*BIG + (x+1)];
+              const a20 = gray[(y+1)*BIG + (x-1)];
+              const a21 = gray[(y+1)*BIG + (x)];
+              const a22 = gray[(y+1)*BIG + (x+1)];
+
+              const gx = (-a00 + a02) + (-2*a10 + 2*a12) + (-a20 + a22);
+              const gy = (-a00 - 2*a01 - a02) + (a20 + 2*a21 + a22);
+              const mag = Math.abs(gx) + Math.abs(gy);
+
+              edges[y*BIG + x] = mag > EDGE_T ? 255 : 0;
+            }
+          }
+
+          const cell = BIG / gridN;
+          let next = makeGrid(gridN);
+
+          const avgR = makeGrid(gridN);
+          const avgG = makeGrid(gridN);
+          const avgB = makeGrid(gridN);
+
+          const WHITE_T = (importMode === "detailed") ? 246 : (importMode === "silhouette") ? 220 : 232;
+          const EDGE_RATIO_T = (importMode === "detailed") ? 0.24 : (importMode === "silhouette") ? 0.12 : 0.15;
+
+          for(let r=0;r<gridN;r++){
+            for(let c=0;c<gridN;c++){
+              const x0 = Math.floor(c * cell);
+              const y0 = Math.floor(r * cell);
+              const x1 = Math.floor((c+1) * cell);
+              const y1 = Math.floor((r+1) * cell);
+
+              let sr=0, sg=0, sb=0, n=0;
+              let edgeCount=0, tot=0;
+
+              for(let y=y0;y<y1;y++){
+                for(let x=x0;x<x1;x++){
+                  const p = (y*BIG + x) * 4;
+                  sr += d[p];
+                  sg += d[p+1];
+                  sb += d[p+2];
+                  n++;
+
+                  tot++;
+                  if(edges[y*BIG + x]) edgeCount++;
+                }
+              }
+
+              const rr = Math.round(sr / n);
+              const gg = Math.round(sg / n);
+              const bb = Math.round(sb / n);
+
+              avgR[r][c] = rr;
+              avgG[r][c] = gg;
+              avgB[r][c] = bb;
+
+              const edgeRatio = edgeCount / tot;
+              if(edgeRatio > EDGE_RATIO_T){
+                next[r][c] = BLACK_HEX;
+                continue;
+              }
+
+              if(rr > WHITE_T && gg > WHITE_T && bb > WHITE_T){
+                next[r][c] = null;
+                continue;
+              }
+
+              next[r][c] = nearestPaletteHex(rr, gg, bb);
+            }
+          }
+
+          if(importMode === "simple"){
+            // contour duidelijker
+            next = dilateBlack(next);
+
+            // minder kleuren, maar wel diverser gekozen
+            next = reducePalette(next, avgR, avgG, avgB, 5);
+
+            // ruis weg
+            next = despeckle(next);
+
+            // maak het rustiger
+            next = majoritySmooth(next, 1);
+
+            // contour nog iets sterker
+            next = dilateBlack(next);
+          }
+
+          if(importMode === "silhouette"){
+            // Silhouet: vooral herkenbare omtrek en 1 tot 2 vulkleuren
+            next = dilateBlack(next);
+            next = reducePalette(next, avgR, avgG, avgB, 3);
+            next = majoritySmooth(next, 2);
+            next = despeckle(next);
+            next = dilateBlack(next);
+          }
+
+          grid = next;
+          draw();
+        } finally {
+          try{ URL.revokeObjectURL(url); } catch {}
+        }
+      };
+
+      img.onerror = () => {
+        try{ URL.revokeObjectURL(url); } catch {}
+        alert("Deze foto lukt niet");
+      };
+
+      img.src = url;
     }
 
-    beadScale.addEventListener("input", function(){
+    beadScale.addEventListener("input", () => {
       beadPx = Number(beadScale.value);
       draw();
     });
@@ -678,21 +1169,20 @@
     exportBtn.addEventListener("click", exportPNG);
     printBtn.addEventListener("click", printBoard);
     saveBtn.addEventListener("click", save);
-    loadBtn.addEventListener("click", load);
+    loadBtn.addEventListener("click", () => load());
     homeBtn.addEventListener("click", newDesign);
 
-    zoomRange.addEventListener("input", function(){ setZoom(Number(zoomRange.value)); });
-    zoomOutBtn.addEventListener("click", function(){ setZoom(zoom - 0.1); });
-    zoomInBtn.addEventListener("click", function(){ setZoom(zoom + 0.1); });
-    zoomResetBtn.addEventListener("click", function(){ setZoom(1); });
+    zoomRange.addEventListener("input", () => setZoom(Number(zoomRange.value)));
+    zoomOutBtn.addEventListener("click", () => setZoom(zoom - 0.1));
+    zoomInBtn.addEventListener("click", () => setZoom(zoom + 0.1));
+    zoomResetBtn.addEventListener("click", () => setZoom(1));
 
     helpBtn.addEventListener("click", showHelp);
 
-    setImportModeUI();
     importModeBtn.addEventListener("click", toggleImportMode);
 
-    importBtn.addEventListener("click", function(){ fileInput.click(); });
-    fileInput.addEventListener("change", function(e){
+    importBtn.addEventListener("click", () => fileInput.click());
+    fileInput.addEventListener("change", (e) => {
       const file = e.target.files && e.target.files[0];
       importImageFile(file);
       fileInput.value = "";
@@ -705,15 +1195,17 @@
 
     const savedTitle = localStorage.getItem(STORAGE_KEY + "_title");
     if(savedTitle && !designTitleInput.value) designTitleInput.value = savedTitle;
-
-    designTitleInput.addEventListener("input", function(){
-      try{ localStorage.setItem(STORAGE_KEY + "_title", designTitleInput.value); } catch(e){}
+    designTitleInput.addEventListener("input", () => {
+      try{ localStorage.setItem(STORAGE_KEY + "_title", designTitleInput.value); } catch {}
     });
 
     buildPalette();
     applyZoom();
     draw();
+
+    // laad laatste ontwerp
     load();
+
   })();
   </script>
 </body>
