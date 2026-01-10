@@ -677,10 +677,9 @@
     }
 
     function showHelp(){
-      alert("Tekenen: tik of sleep
-Gum: druk op 🧼
-Foto: druk op 📷");
-    }
+  alert("Tekenen: tik of sleep\nGum: druk op 🧼\nFoto: druk op 📷");
+}
+
 
     const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 
@@ -691,52 +690,61 @@ Foto: druk op 📷");
     }
 
     function importImageFile(file){
-      if(!file) return;
-      const img = new Image();
-      img.onload = () => {
-        pushHistory();
+  if(!file) return;
 
-        const off = document.createElement("canvas");
-        off.width = gridN;
-        off.height = gridN;
-        const octx = off.getContext("2d", { willReadFrequently: true });
+  const url = URL.createObjectURL(file);
+  const img = new Image();
 
-        const side = Math.min(img.width, img.height);
-        const sx = Math.floor((img.width - side) / 2);
-        const sy = Math.floor((img.height - side) / 2);
+  img.onload = () => {
+    try{
+      pushHistory();
 
-        octx.clearRect(0,0,gridN,gridN);
-        octx.drawImage(img, sx, sy, side, side, 0, 0, gridN, gridN);
+      const off = document.createElement("canvas");
+      off.width = gridN;
+      off.height = gridN;
+      const octx = off.getContext("2d", { willReadFrequently: true });
 
-        const data = octx.getImageData(0,0,gridN,gridN).data;
-        const next = makeGrid(gridN);
+      const side = Math.min(img.width, img.height);
+      const sx = Math.floor((img.width - side) / 2);
+      const sy = Math.floor((img.height - side) / 2);
 
-        for(let r=0;r<gridN;r++){
-          for(let c=0;c<gridN;c++){
-            const i = (r*gridN + c) * 4;
-            const rr = data[i];
-            const gg = data[i+1];
-            const bb = data[i+2];
-            const aa = data[i+3];
+      octx.clearRect(0,0,gridN,gridN);
+      octx.drawImage(img, sx, sy, side, side, 0, 0, gridN, gridN);
 
-            if(aa < 30){
-              next[r][c] = null;
-              continue;
-            }
+      const data = octx.getImageData(0,0,gridN,gridN).data;
+      const next = makeGrid(gridN);
 
-            next[r][c] = nearestPaletteHex(rr, gg, bb);
+      for(let r=0;r<gridN;r++){
+        for(let c=0;c<gridN;c++){
+          const i = (r*gridN + c) * 4;
+          const rr = data[i];
+          const gg = data[i+1];
+          const bb = data[i+2];
+          const aa = data[i+3];
+
+          if(aa < 30){
+            next[r][c] = null;
+            continue;
           }
+
+          next[r][c] = nearestPaletteHex(rr, gg, bb);
         }
+      }
 
-        grid = next;
-        draw();
-      };
-      img.onerror = () => alert("Deze foto lukt niet");
-
-      const url = URL.createObjectURL(file);
-      img.src = url;
-      img.onloadend = () => { try{ URL.revokeObjectURL(url); } catch {} };
+      grid = next;
+      draw();
+    } finally {
+      try{ URL.revokeObjectURL(url); } catch {}
     }
+  };
+
+  img.onerror = () => {
+    try{ URL.revokeObjectURL(url); } catch {}
+    alert("Deze foto lukt niet");
+  };
+
+  img.src = url;
+}
 
     beadScale.addEventListener("input", () => {
       beadPx = Number(beadScale.value);
