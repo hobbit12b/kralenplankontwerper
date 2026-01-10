@@ -74,7 +74,7 @@
       font-size: 13px;
       color: var(--muted);
     }
-    select, input[type="number"], input[type="range"]{
+    select, input[type="range"]{
       width: 100%;
       border:1px solid var(--line);
       border-radius: 12px;
@@ -260,364 +260,422 @@
     </main>
   </div>
 
-<script>
-(() => {
-  const COLORS = [
-    { name: "wit", hex: "#ffffff" },
-    { name: "zwart", hex: "#111111" },
-    { name: "rood", hex: "#e11d48" },
-    { name: "geel", hex: "#facc15" },
-    { name: "lichtblauw", hex: "#38bdf8" },
-    { name: "donkerblauw", hex: "#1d4ed8" },
-    { name: "roze", hex: "#fb7185" },
-    { name: "oranje", hex: "#fb923c" },
-    { name: "groen", hex: "#22c55e" },
-    { name: "donker paars", hex: "#6d28d9" },
-    { name: "lichtpaars", hex: "#a78bfa" },
-    { name: "bruin", hex: "#8b5a2b" },
-  ];
+  <script>
+  (() => {
+    const COLORS = [
+      { name: "wit", hex: "#ffffff" },
+      { name: "zwart", hex: "#111111" },
+      { name: "rood", hex: "#e11d48" },
+      { name: "geel", hex: "#facc15" },
+      { name: "lichtblauw", hex: "#38bdf8" },
+      { name: "donkerblauw", hex: "#1d4ed8" },
+      { name: "roze", hex: "#fb7185" },
+      { name: "oranje", hex: "#fb923c" },
+      { name: "groen", hex: "#22c55e" },
+      { name: "donker paars", hex: "#6d28d9" },
+      { name: "lichtpaars", hex: "#a78bfa" },
+      { name: "bruin", hex: "#8b5a2b" },
+    ];
 
-  const el = (id) => document.getElementById(id);
-  const canvas = el("board");
-  const ctx = canvas.getContext("2d");
+    const el = (id) => document.getElementById(id);
 
-  const sizeSelect = el("sizeSelect");
-  const beadScale = el("beadScale");
-  const paletteEl = el("palette");
-  const clearBtn = el("clearBtn");
-  const undoBtn = el("undoBtn");
-  const eraserBtn = el("eraserBtn");
-  const exportBtn = el("exportBtn");
-  const printBtn = el("printBtn");
-  const saveBtn = el("saveBtn");
-  const loadBtn = el("loadBtn");
-  const lockBtn = el("lockBtn");
+    const canvas = el("board");
+    const ctx = canvas.getContext("2d");
 
-  const activeColorPill = el("activeColorPill");
-  const countPill = el("countPill");
-  const modePill = el("modePill");
-  const saveState = el("saveState");
+    const sizeSelect = el("sizeSelect");
+    const beadScale = el("beadScale");
+    const paletteEl = el("palette");
+    const clearBtn = el("clearBtn");
+    const undoBtn = el("undoBtn");
+    const eraserBtn = el("eraserBtn");
+    const exportBtn = el("exportBtn");
+    const printBtn = el("printBtn");
+    const saveBtn = el("saveBtn");
+    const loadBtn = el("loadBtn");
+    const lockBtn = el("lockBtn");
 
-  const STORAGE_KEY = "kralenplank_designer_v1";
+    const activeColorPill = el("activeColorPill");
+    const countPill = el("countPill");
+    const modePill = el("modePill");
+    const saveState = el("saveState");
 
-  let gridN = Number(sizeSelect.value);
-  let beadPx = Number(beadScale.value);
-  let locked = false;
+    const STORAGE_KEY = "kralenplank_designer_v1";
 
-  let activeColor = COLORS[0];
-  let eraserMode = false;
+    let gridN = Number(sizeSelect.value);
+    let beadPx = Number(beadScale.value);
+    let locked = false;
 
-  let grid = makeGrid(gridN);
-  let history = [];
+    let activeColor = COLORS[0];
+    let eraserMode = false;
 
-  const swatchByName = new Map();
+    let grid = makeGrid(gridN);
+    let history = [];
 
-  function makeGrid(n){
-    return Array.from({length:n}, () => Array.from({length:n}, () => null));
-  }
+    const swatchByName = new Map();
 
-  function snapshot(){
-    return grid.map(row => row.slice());
-  }
-
-  function pushHistory(){
-    history.push(snapshot());
-    if(history.length > 60) history.shift();
-  }
-
-  function setSaved(flag){
-    saveState.textContent = flag ? "Opgeslagen" : "Niet opgeslagen";
-  }
-
-  function setActiveColor(color){
-    activeColor = color;
-    eraserMode = false;
-    modePill.textContent = "Modus: tekenen";
-    eraserBtn.classList.toggle("primary", false);
-    activeColorPill.textContent = "Kleur: " + color.name;
-
-    for(const swatch of swatchByName.values()){
-      swatch.classList.remove("active");
+    function makeGrid(n){
+      return Array.from({length:n}, () => Array.from({length:n}, () => null));
     }
-    const activeSwatch = swatchByName.get(color.name);
-    if(activeSwatch) activeSwatch.classList.add("active");
-  }
 
-  function buildPalette(){
-    paletteEl.innerHTML = "";
-    swatchByName.clear();
+    function snapshot(){
+      return grid.map(row => row.slice());
+    }
 
-    COLORS.forEach((c, idx) => {
-      const item = document.createElement("div");
-      item.className = "swatch" + (idx === 0 ? " active" : "");
-      item.innerHTML = `
-        <div class="dot" style="background:${c.hex}"></div>
-        <span>${c.name}</span>
-      `;
-      item.addEventListener("click", () => setActiveColor(c));
-      paletteEl.appendChild(item);
-      swatchByName.set(c.name, item);
-    });
-  }
+    function pushHistory(){
+      history.push(snapshot());
+      if(history.length > 60) history.shift();
+    }
 
-  function boardMetrics(){
-    const n = gridN;
-    const padding = Math.round(beadPx * 1.25);
-    const spacing = beadPx * 1.65;
-    const w = Math.round(padding * 2 + (n - 1) * spacing);
-    return { n, padding, spacing, w, h: w };
-  }
+    function setSaved(flag){
+      saveState.textContent = flag ? "Opgeslagen" : "Niet opgeslagen";
+    }
 
-  function resizeCanvasToFit(){
-    const m = boardMetrics();
-    canvas.width = m.w;
-    canvas.height = m.h;
-  }
+    function setActiveColor(color){
+      activeColor = color;
+      eraserMode = false;
+      modePill.textContent = "Modus: tekenen";
+      eraserBtn.classList.toggle("primary", false);
+      activeColorPill.textContent = "Kleur: " + color.name;
 
-  function roundRect(ctx, x, y, w, h, r){
-    const rr = Math.min(r, w/2, h/2);
-    ctx.beginPath();
-    ctx.moveTo(x+rr,y);
-    ctx.arcTo(x+w,y, x+w,y+h, rr);
-    ctx.arcTo(x+w,y+h, x,y+h, rr);
-    ctx.arcTo(x,y+h, x,y, rr);
-    ctx.arcTo(x,y, x+w,y, rr);
-    ctx.closePath();
-  }
+      for(const swatch of swatchByName.values()){
+        swatch.classList.remove("active");
+      }
+      const activeSwatch = swatchByName.get(color.name);
+      if(activeSwatch) activeSwatch.classList.add("active");
+    }
 
-  function drawBead(x, y, colorHex){
-    const R = beadPx * 0.52;
-    const hole = beadPx * 0.16;
+    function buildPalette(){
+      paletteEl.innerHTML = "";
+      swatchByName.clear();
 
-    ctx.beginPath();
-    ctx.fillStyle = "rgba(0,0,0,.12)";
-    ctx.arc(x + R*0.12, y + R*0.18, R*1.02, 0, Math.PI*2);
-    ctx.fill();
+      COLORS.forEach((c, idx) => {
+        const item = document.createElement("div");
+        item.className = "swatch" + (idx === 0 ? " active" : "");
+        item.innerHTML = `
+          <div class="dot" style="background:${c.hex}"></div>
+          <span>${c.name}</span>
+        `;
+        item.addEventListener("click", () => setActiveColor(c));
+        paletteEl.appendChild(item);
+        swatchByName.set(c.name, item);
+      });
+    }
 
-    ctx.beginPath();
-    ctx.fillStyle = colorHex;
-    ctx.arc(x, y, R, 0, Math.PI*2);
-    ctx.fill();
+    function boardMetrics(){
+      const n = gridN;
+      const padding = Math.round(beadPx * 1.25);
+      const spacing = beadPx * 1.65;
+      const w = Math.round(padding * 2 + (n - 1) * spacing);
+      return { n, padding, spacing, w, h: w };
+    }
 
-    ctx.beginPath();
-    ctx.fillStyle = "rgba(255,255,255,.22)";
-    ctx.arc(x - R*0.25, y - R*0.25, R*0.55, 0, Math.PI*2);
-    ctx.fill();
+    function resizeCanvasToFit(){
+      const m = boardMetrics();
+      canvas.width = m.w;
+      canvas.height = m.h;
+    }
 
-    ctx.beginPath();
-    ctx.fillStyle = "rgba(0,0,0,.35)";
-    ctx.arc(x, y, hole, 0, Math.PI*2);
-    ctx.fill();
-  }
+    function roundRect(ctx, x, y, w, h, r){
+      const rr = Math.min(r, w/2, h/2);
+      ctx.beginPath();
+      ctx.moveTo(x+rr,y);
+      ctx.arcTo(x+w,y, x+w,y+h, rr);
+      ctx.arcTo(x+w,y+h, x,y+h, rr);
+      ctx.arcTo(x,y+h, x,y, rr);
+      ctx.arcTo(x,y, x+w,y, rr);
+      ctx.closePath();
+    }
 
-  function draw(){
-    resizeCanvasToFit();
-    const m = boardMetrics();
+    function drawBead(x, y, colorHex){
+      const R = beadPx * 0.52;
+      const hole = beadPx * 0.16;
 
-    ctx.clearRect(0,0,canvas.width,canvas.height);
-    ctx.fillStyle = "#ffffff";
-    ctx.fillRect(0,0,canvas.width,canvas.height);
+      ctx.beginPath();
+      ctx.fillStyle = "rgba(0,0,0,.12)";
+      ctx.arc(x + R*0.12, y + R*0.18, R*1.02, 0, Math.PI*2);
+      ctx.fill();
 
-    ctx.strokeStyle = "#e5e7eb";
-    ctx.lineWidth = 2;
-    roundRect(ctx, 6, 6, canvas.width - 12, canvas.height - 12, 18);
-    ctx.stroke();
+      ctx.beginPath();
+      ctx.fillStyle = colorHex;
+      ctx.arc(x, y, R, 0, Math.PI*2);
+      ctx.fill();
 
-    for(let r=0;r<m.n;r++){
-      for(let c=0;c<m.n;c++){
-        const x = m.padding + c*m.spacing;
-        const y = m.padding + r*m.spacing;
+      ctx.beginPath();
+      ctx.fillStyle = "rgba(255,255,255,.22)";
+      ctx.arc(x - R*0.25, y - R*0.25, R*0.55, 0, Math.PI*2);
+      ctx.fill();
 
-        ctx.beginPath();
-        ctx.fillStyle = "#111827";
-        ctx.globalAlpha = 0.18;
-        ctx.arc(x,y, Math.max(1.6, beadPx*0.12), 0, Math.PI*2);
-        ctx.fill();
-        ctx.globalAlpha = 1;
+      ctx.beginPath();
+      ctx.fillStyle = "rgba(0,0,0,.35)";
+      ctx.arc(x, y, hole, 0, Math.PI*2);
+      ctx.fill();
+    }
 
-        const bead = grid[r][c];
-        if(bead){
-          drawBead(x, y, bead);
+    function draw(){
+      resizeCanvasToFit();
+      const m = boardMetrics();
+
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0,0,canvas.width,canvas.height);
+
+      ctx.strokeStyle = "#e5e7eb";
+      ctx.lineWidth = 2;
+      roundRect(ctx, 6, 6, canvas.width - 12, canvas.height - 12, 18);
+      ctx.stroke();
+
+      for(let r=0;r<m.n;r++){
+        for(let c=0;c<m.n;c++){
+          const x = m.padding + c*m.spacing;
+          const y = m.padding + r*m.spacing;
+
+          ctx.beginPath();
+          ctx.fillStyle = "#111827";
+          ctx.globalAlpha = 0.18;
+          ctx.arc(x,y, Math.max(1.6, beadPx*0.12), 0, Math.PI*2);
+          ctx.fill();
+          ctx.globalAlpha = 1;
+
+          const bead = grid[r][c];
+          if(bead){
+            drawBead(x, y, bead);
+          }
         }
       }
     }
-  }
 
-  function updateCounts(){
-    let count = 0;
-    for(const row of grid){
-      for(const cell of row){
-        if(cell) count++;
+    function updateCounts(){
+      let count = 0;
+      for(const row of grid){
+        for(const cell of row){
+          if(cell) count++;
+        }
       }
-    }
-    countPill.textContent = "Geplaatst: " + count;
-  }
-
-  function screenToCell(px, py){
-    const rect = canvas.getBoundingClientRect();
-    const x = (px - rect.left) * (canvas.width / rect.width);
-    const y = (py - rect.top) * (canvas.height / rect.height);
-
-    const m = boardMetrics();
-    const col = Math.round((x - m.padding) / m.spacing);
-    const row = Math.round((y - m.padding) / m.spacing);
-
-    if(row < 0 || col < 0 || row >= m.n || col >= m.n) return null;
-
-    const cx = m.padding + col*m.spacing;
-    const cy = m.padding + row*m.spacing;
-    const dist = Math.hypot(x - cx, y - cy);
-    if(dist > beadPx * 0.85) return null;
-
-    return { row, col };
-  }
-
-  function paintCell(row, col){
-    const current = grid[row][col];
-    const next = eraserMode ? null : activeColor.hex;
-
-    if(current === next){
-      grid[row][col] = null;
-    } else {
-      grid[row][col] = next;
+      countPill.textContent = "Geplaatst: " + count;
     }
 
-    setSaved(false);
-    draw();
-    updateCounts();
-  }
+    function screenToCell(px, py){
+      const rect = canvas.getBoundingClientRect();
+      const x = (px - rect.left) * (canvas.width / rect.width);
+      const y = (py - rect.top) * (canvas.height / rect.height);
 
-  let isDown = false;
-  let lastCellKey = "";
-  let lastPointerId = null;
+      const m = boardMetrics();
+      const col = Math.round((x - m.padding) / m.spacing);
+      const row = Math.round((y - m.padding) / m.spacing);
 
-  function onPointerDown(e){
-    e.preventDefault();
-    isDown = true;
-    lastPointerId = e.pointerId;
-    pushHistory();
+      if(row < 0 || col < 0 || row >= m.n || col >= m.n) return null;
 
-    const cell = screenToCell(e.clientX, e.clientY);
-    if(cell){
-      lastCellKey = cell.row + "," + cell.col;
+      const cx = m.padding + col*m.spacing;
+      const cy = m.padding + row*m.spacing;
+      const dist = Math.hypot(x - cx, y - cy);
+      if(dist > beadPx * 0.85) return null;
+
+      return { row, col };
+    }
+
+    function paintCell(row, col){
+      const current = grid[row][col];
+      const next = eraserMode ? null : activeColor.hex;
+
+      if(current === next){
+        grid[row][col] = null;
+      } else {
+        grid[row][col] = next;
+      }
+
+      setSaved(false);
+      draw();
+      updateCounts();
+    }
+
+    let isDown = false;
+    let lastCellKey = "";
+    let lastPointerId = null;
+
+    function onPointerDown(e){
+      e.preventDefault();
+      isDown = true;
+      lastPointerId = e.pointerId;
+      pushHistory();
+
+      const cell = screenToCell(e.clientX, e.clientY);
+      if(cell){
+        lastCellKey = cell.row + "," + cell.col;
+        paintCell(cell.row, cell.col);
+      }
+      canvas.setPointerCapture(e.pointerId);
+    }
+
+    function onPointerMove(e){
+      if(!isDown) return;
+      if(lastPointerId !== null && e.pointerId !== lastPointerId) return;
+
+      e.preventDefault();
+      const cell = screenToCell(e.clientX, e.clientY);
+      if(!cell) return;
+
+      const key = cell.row + "," + cell.col;
+      if(key === lastCellKey) return;
+      lastCellKey = key;
+
       paintCell(cell.row, cell.col);
     }
-    canvas.setPointerCapture(e.pointerId);
-  }
 
-  function onPointerMove(e){
-    if(!isDown) return;
-    if(lastPointerId !== null && e.pointerId !== lastPointerId) return;
+    function onPointerUp(e){
+      isDown = false;
+      lastCellKey = "";
+      lastPointerId = null;
+      try{ canvas.releasePointerCapture(e.pointerId); } catch {}
+    }
 
-    e.preventDefault();
-    const cell = screenToCell(e.clientX, e.clientY);
-    if(!cell) return;
+    function clearAll(){
+      pushHistory();
+      grid = makeGrid(gridN);
+      setSaved(false);
+      draw();
+      updateCounts();
+    }
 
-    const key = cell.row + "," + cell.col;
-    if(key === lastCellKey) return;
-    lastCellKey = key;
+    function undo(){
+      const prev = history.pop();
+      if(!prev) return;
+      grid = prev.map(r => r.slice());
+      setSaved(false);
+      draw();
+      updateCounts();
+    }
 
-    paintCell(cell.row, cell.col);
-  }
+    function save(){
+      const payload = { v: 1, gridN, beadPx, locked, grid };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+      setSaved(true);
+    }
 
-  function onPointerUp(e){
-    isDown = false;
-    lastCellKey = "";
-    lastPointerId = null;
-    try{ canvas.releasePointerCapture(e.pointerId); } catch {}
-  }
+    function load({ silent = false } = {}){
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if(!raw){
+        if(!silent) alert("Nog niets opgeslagen");
+        return false;
+      }
 
-  function clearAll(){
-    pushHistory();
-    grid = makeGrid(gridN);
-    setSaved(false);
-    draw();
-    updateCounts();
-  }
+      let payload;
+      try{ payload = JSON.parse(raw); }
+      catch {
+        if(!silent) alert("Opslag is beschadigd");
+        return false;
+      }
 
-  function undo(){
-    const prev = history.pop();
-    if(!prev) return;
-    grid = prev.map(r => r.slice());
-    setSaved(false);
-    draw();
-    updateCounts();
-  }
+      if(payload && payload.grid && payload.gridN){
+        gridN = Number(payload.gridN);
+        beadPx = Number(payload.beadPx || beadPx);
+        locked = Boolean(payload.locked);
 
-  function save(){
-    const payload = { v: 1, gridN, beadPx, locked, grid };
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
-    setSaved(true);
-  }
+        sizeSelect.value = String(gridN);
+        beadScale.value = String(beadPx);
 
-  function load({ silent = false } = {}){
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if(!raw){
-      if(!silent) alert("Nog niets opgeslagen");
+        sizeSelect.disabled = locked;
+        lockBtn.textContent = locked ? "Formaat staat vast" : "Formaat vastzetten";
+        lockBtn.classList.toggle("primary", !locked);
+
+        grid = payload.grid;
+        history = [];
+        setSaved(true);
+        draw();
+        updateCounts();
+        return true;
+      }
+
+      if(!silent) alert("Opslag heeft een onbekend formaat");
       return false;
     }
 
-    let payload;
-    try{ payload = JSON.parse(raw); }
-    catch {
-      if(!silent) alert("Opslag is beschadigd");
-      return false;
+    function exportPNG(){
+      draw();
+      const url = canvas.toDataURL("image/png");
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `kralenplank_${gridN}x${gridN}.png`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
     }
 
-    if(payload && payload.grid && payload.gridN){
-      gridN = Number(payload.gridN);
-      beadPx = Number(payload.beadPx || beadPx);
-      locked = Boolean(payload.locked);
+    function printBoard(){
+      draw();
+      const url = canvas.toDataURL("image/png");
+      const w = window.open("", "_blank");
+      if(!w) return alert("Pop up geblokkeerd, sta pop ups toe voor printen");
 
-      sizeSelect.value = String(gridN);
-      beadScale.value = String(beadPx);
+      w.document.write(`
+        <html>
+          <head>
+            <title>Print kralenplank</title>
+            <style>
+              body{margin:0;display:flex;align-items:center;justify-content:center;background:#fff}
+              img{max-width: 95vw; max-height: 95vh}
+            </style>
+          </head>
+          <body>
+            <img src="${url}" alt="kralenplank" />
+            <script>
+              window.onload = () => { window.print(); };
+            </script>
+          </body>
+        </html>
+      `);
+      w.document.close();
+    }
 
+    function toggleEraser(){
+      eraserMode = !eraserMode;
+      modePill.textContent = eraserMode ? "Modus: gum" : "Modus: tekenen";
+      eraserBtn.classList.toggle("primary", eraserMode);
+    }
+
+    function lockSize(){
+      locked = !locked;
       sizeSelect.disabled = locked;
       lockBtn.textContent = locked ? "Formaat staat vast" : "Formaat vastzetten";
       lockBtn.classList.toggle("primary", !locked);
-
-      grid = payload.grid;
-      history = [];
-      setSaved(true);
-      draw();
-      updateCounts();
-      return true;
+      setSaved(false);
     }
 
-    if(!silent) alert("Opslag heeft een onbekend formaat");
-    return false;
-  }
+    sizeSelect.addEventListener("change", () => {
+      if(locked) return;
+      gridN = Number(sizeSelect.value);
+      history = [];
+      grid = makeGrid(gridN);
+      setSaved(false);
+      draw();
+      updateCounts();
+    });
 
-  function exportPNG(){
+    beadScale.addEventListener("input", () => {
+      beadPx = Number(beadScale.value);
+      setSaved(false);
+      draw();
+    });
+
+    clearBtn.addEventListener("click", clearAll);
+    undoBtn.addEventListener("click", undo);
+    eraserBtn.addEventListener("click", toggleEraser);
+    exportBtn.addEventListener("click", exportPNG);
+    printBtn.addEventListener("click", printBoard);
+    saveBtn.addEventListener("click", save);
+    loadBtn.addEventListener("click", () => load({ silent: false }));
+    lockBtn.addEventListener("click", lockSize);
+
+    canvas.addEventListener("pointerdown", onPointerDown, { passive: false });
+    canvas.addEventListener("pointermove", onPointerMove, { passive: false });
+    canvas.addEventListener("pointerup", onPointerUp);
+    canvas.addEventListener("pointercancel", onPointerUp);
+
+    buildPalette();
     draw();
-    const url = canvas.toDataURL("image/png");
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `kralenplank_${gridN}x${gridN}.png`;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-  }
+    updateCounts();
 
-  function printBoard(){
-    draw();
-    const url = canvas.toDataURL("image/png");
-    const w = window.open("", "_blank");
-    if(!w) return alert("Pop up geblokkeerd, sta pop ups toe voor printen");
-
-    w.document.write(`
-      <html>
-        <head>
-          <title>Print kralenplank</title>
-          <style>
-            body{margin:0;display:flex;align-items:center;justify-content:center;background:#fff}
-            img{max-width: 95vw; max-height: 95vh}
-          </style>
-        </head>
-        <body>
-          <img src="${url}" alt="kralenplank" />
-          <script>
-            window.onload = () => { window.print(); };
-          </script>
-        </body>
-      </html>
+    load({ silent: true });
+  })();
+  </script>
+</body>
+</html>
