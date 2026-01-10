@@ -223,6 +223,26 @@
       font-weight: 800;
     }
 
+    .miniBar{
+      margin-top: 10px;
+      display:flex;
+      align-items:center;
+      gap: 10px;
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background:#fff;
+    }
+
+    .miniIcon{ font-size: 18px; width: 26px; text-align:center; }
+
+    .miniBar input[type="range"]{
+      flex: 1 1 auto;
+      margin: 0;
+    }
+
+    .miniPct{ min-width: 56px; text-align:right; font-weight: 800; }
+
     @media (max-width: 920px){
       .wrap{ grid-template-columns: 1fr; }
       .dot{ width: 34px; height: 34px; }
@@ -256,6 +276,12 @@
           <button id="importBtn" aria-label="Importeer foto">📷</button>
           <button id="importModeBtn" aria-label="Import modus">🧩</button>
           <button id="printBtn" aria-label="Print">🖨️</button>
+        </div>
+
+        <div class="miniBar" aria-label="Foto grootte">
+          <span class="miniIcon" aria-hidden="true">🧍</span>
+          <input id="subjectScale" type="range" min="0.70" max="1.60" step="0.05" value="1.05" aria-label="Onderwerp groter of kleiner" />
+          <div class="miniPct" id="subjectPct" aria-hidden="true">105%</div>
         </div>
 
         <div class="btns3">
@@ -719,7 +745,6 @@
       else importModeBtn.textContent = "✂️";
 
       try{ localStorage.setItem(STORAGE_KEY + "_importMode", importMode); } catch {}
-    } catch {}
     }
 
     function toggleImportMode(){
