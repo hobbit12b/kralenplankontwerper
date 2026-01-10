@@ -14,6 +14,7 @@
       --shadow: 0 10px 30px rgba(0,0,0,.08);
       --radius: 16px;
     }
+
     html,body{height:100%}
     body{
       margin:0;
@@ -21,6 +22,19 @@
       background: var(--bg);
       color: var(--ink);
     }
+
+    .sr-only{
+      position:absolute;
+      width:1px;
+      height:1px;
+      padding:0;
+      margin:-1px;
+      overflow:hidden;
+      clip:rect(0,0,0,0);
+      white-space:nowrap;
+      border:0;
+    }
+
     .wrap{
       max-width: 1100px;
       margin: 18px auto;
@@ -29,6 +43,7 @@
       grid-template-columns: 320px 1fr;
       gap: 14px;
     }
+
     .card{
       background: var(--panel);
       border: 1px solid var(--line);
@@ -36,6 +51,7 @@
       box-shadow: var(--shadow);
       overflow: hidden;
     }
+
     header.card{
       grid-column: 1 / -1;
       padding: 14px 16px;
@@ -44,104 +60,154 @@
       justify-content:space-between;
       gap: 10px;
     }
+
     header h1{
       margin:0;
       font-size: 18px;
       letter-spacing: .2px;
     }
+
     header .hint{
       color: var(--muted);
       font-size: 13px;
     }
 
     .panel{ padding: 14px; }
+
     .section{
       padding: 12px;
       border: 1px solid var(--line);
       border-radius: 14px;
       margin-bottom: 12px;
     }
+
     .section h2{
       margin:0 0 10px;
       font-size: 14px;
     }
-    .grid2{
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-    }
-    label{
-      font-size: 13px;
-      color: var(--muted);
-    }
-    select, input[type="range"]{
+
+    input[type="range"]{
       width: 100%;
       border:1px solid var(--line);
       border-radius: 12px;
-      padding: 10px 10px;
-      font-size: 14px;
+      padding: 10px 0;
       background: #fff;
-      color: var(--ink);
       outline: none;
     }
-    input[type="range"]{ padding: 10px 0; }
 
-    .btns{
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin-top: 10px;
-    }
     button{
       border: 1px solid var(--line);
       background: #fff;
-      border-radius: 14px;
-      padding: 10px 12px;
-      font-size: 14px;
+      border-radius: 18px;
+      padding: 14px 12px;
+      font-size: 22px;
       cursor: pointer;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      min-height: 54px;
+      user-select:none;
+      -webkit-tap-highlight-color: transparent;
     }
+
     button.primary{
       background: #111827;
       color: #fff;
       border-color: #111827;
     }
+
     button.danger{
-      background:#fff;
       border-color:#fecaca;
       color:#991b1b;
+      background:#fff;
     }
+
     button:active{ transform: translateY(1px); }
 
-    .palette{
-      display:grid;
-      grid-template-columns: repeat(4, 1fr);
+    .bigPill{
+      display:flex;
+      align-items:center;
+      justify-content:center;
       gap: 10px;
-    }
-    .swatch{
       border: 1px solid var(--line);
-      border-radius: 14px;
-      padding: 10px 10px;
+      border-radius: 16px;
+      padding: 12px;
+      background:#fff;
+    }
+
+    .bigPill .emoji{ font-size: 22px; }
+    .bigPill .bigNum{ font-size: 18px; font-weight: 750; }
+
+    .iconLabel{
       display:flex;
       align-items:center;
       gap: 10px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 10px;
+      background:#fff;
+      margin-top: 10px;
+    }
+
+    .iconLabel .emoji{ font-size: 20px; }
+
+    .btns2{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .btns3{
+      display:grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .palette{
+      display:grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      max-height: 240px;
+      overflow:auto;
+      padding-right: 6px;
+    }
+
+    .swatch{
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 12px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
       cursor:pointer;
       user-select:none;
       background:#fff;
+      min-height: 54px;
+      -webkit-tap-highlight-color: transparent;
     }
+
+    .swatch.active{
+      outline: 4px solid rgba(17,24,39,.18);
+      border-color: rgba(17,24,39,.4);
+    }
+
     .dot{
-      width: 22px;
-      height: 22px;
+      width: 34px;
+      height: 34px;
       border-radius: 999px;
       border: 1px solid rgba(0,0,0,.15);
       flex: 0 0 auto;
+      position: relative;
     }
-    .swatch span{
-      font-size: 13px;
-      line-height: 1.1;
-    }
-    .swatch.active{
-      outline: 3px solid rgba(17,24,39,.2);
-      border-color: rgba(17,24,39,.4);
+
+    .dot::after{
+      content:"";
+      position:absolute;
+      inset: 38% 38% 38% 38%;
+      border-radius: 999px;
+      background: rgba(0,0,0,.25);
     }
 
     .stage{
@@ -150,6 +216,7 @@
       flex-direction: column;
       gap: 12px;
     }
+
     .canvasWrap{
       border: 1px solid var(--line);
       border-radius: 18px;
@@ -161,30 +228,49 @@
       padding: 12px;
       overflow:auto;
     }
+
     canvas{
       max-width: 100%;
       height: auto;
       touch-action: none;
     }
+
     .status{
       display:flex;
       justify-content: space-between;
+      align-items:center;
       color: var(--muted);
       font-size: 13px;
       gap: 10px;
       flex-wrap: wrap;
     }
+
     .pill{
       border:1px solid var(--line);
-      padding: 6px 10px;
+      padding: 8px 10px;
       border-radius: 999px;
       background:#fff;
       color: var(--ink);
-      font-size: 13px;
+      font-size: 14px;
+      display:flex;
+      align-items:center;
+      gap: 8px;
+    }
+
+    .pillDot{
+      width: 18px;
+      height: 18px;
+      border-radius: 999px;
+      border: 1px solid rgba(0,0,0,.15);
+      background:#fff;
     }
 
     @media (max-width: 920px){
       .wrap{ grid-template-columns: 1fr; }
+      .palette{
+        grid-template-columns: repeat(4, 1fr);
+        max-height: 190px;
+      }
     }
   </style>
 </head>
@@ -193,75 +279,83 @@
     <header class="card">
       <div>
         <h1>Kralenplank ontwerper</h1>
-        <div class="hint">Tik of klik om kralen te plaatsen, houd ingedrukt om door te tekenen</div>
+        <div class="hint">👆 teken, 🧼 gum, 💾 bewaren</div>
       </div>
-      <div class="pill" id="saveState">Niet opgeslagen</div>
+      <div class="pill" id="saveState" aria-label="Opslaan status">
+        <span aria-hidden="true">💾</span>
+        <span id="saveStateText" class="sr-only">Niet opgeslagen</span>
+      </div>
     </header>
 
     <aside class="card panel">
-      <div class="section">
-        <h2>Plankinstellingen</h2>
-        <div class="grid2">
-          <div>
-            <label for="sizeSelect">Aantal pinnen (vierkant)</label>
-            <select id="sizeSelect">
-              <option value="15">15 × 15</option>
-              <option value="19" selected>19 × 19</option>
-              <option value="21">21 × 21</option>
-              <option value="29">29 × 29</option>
-            </select>
-          </div>
-          <div>
-            <label for="beadScale">Kraalformaat</label>
-            <input id="beadScale" type="range" min="16" max="34" value="24" />
-          </div>
+      <div class="section" aria-label="Plank instellingen">
+        <h2 class="sr-only">Plank</h2>
+        <div class="bigPill" aria-label="Plankformaat 19 bij 19">
+          <span class="emoji" aria-hidden="true">🧷</span>
+          <span class="bigNum" aria-hidden="true">19 × 19</span>
         </div>
 
-        <div class="btns">
-          <button id="lockBtn" class="primary" title="Zet het formaat vast zodat het per ongeluk niet verandert">Formaat vastzetten</button>
-          <button id="clearBtn" class="danger">Leegmaken</button>
+        <div class="iconLabel" aria-label="Kraalformaat">
+          <span class="emoji" aria-hidden="true">📏</span>
+          <input id="beadScale" type="range" min="16" max="34" value="24" />
+        </div>
+
+        <div class="btns2" aria-label="Snel knoppen">
+          <button id="undoBtn" title="Undo" aria-label="Undo">↩️</button>
+          <button id="clearBtn" class="danger" title="Leegmaken" aria-label="Leegmaken">🧽</button>
         </div>
       </div>
 
-      <div class="section">
-        <h2>Gereedschap</h2>
-        <div class="btns">
-          <button id="undoBtn">Undo</button>
-          <button id="eraserBtn">Gum</button>
+      <div class="section" aria-label="Acties">
+        <h2 class="sr-only">Acties</h2>
+
+        <div class="btns3">
+          <button id="eraserBtn" title="Gum" aria-label="Gum">🧼</button>
+          <button id="saveBtn" class="primary" title="Opslaan" aria-label="Opslaan">💾</button>
+          <button id="loadBtn" title="Laden" aria-label="Laden">📂</button>
         </div>
-        <div class="btns">
-          <button id="saveBtn" class="primary">Opslaan</button>
-          <button id="loadBtn">Laden</button>
-        </div>
-        <div class="btns">
-          <button id="exportBtn">Export als PNG</button>
-          <button id="printBtn">Print</button>
+
+        <div class="btns3">
+          <button id="exportBtn" title="Afbeelding" aria-label="Afbeelding">🖼️</button>
+          <button id="printBtn" title="Print" aria-label="Print">🖨️</button>
+          <button id="homeBtn" title="Nieuw" aria-label="Nieuw">🆕</button>
         </div>
       </div>
 
-      <div class="section">
-        <h2>Kleuren (jullie set)</h2>
+      <div class="section" aria-label="Kleuren">
+        <h2 class="sr-only">Kleuren</h2>
         <div class="palette" id="palette"></div>
       </div>
     </aside>
 
     <main class="card stage">
       <div class="status">
-        <div class="pill" id="activeColorPill">Kleur: wit</div>
-        <div class="pill" id="countPill">Geplaatst: 0</div>
+        <div class="pill" aria-label="Huidige kleur">
+          <span aria-hidden="true">🎨</span>
+          <span class="pillDot" id="activeColorDot"></span>
+        </div>
+        <div class="pill" aria-label="Aantal kralen">
+          <span aria-hidden="true">🔢</span>
+          <span id="countNum">0</span>
+        </div>
       </div>
+
       <div class="canvasWrap">
         <canvas id="board" width="900" height="900" aria-label="kralenplank"></canvas>
       </div>
+
       <div class="status">
-        <div>Tip: gum schakelt tekenen uit, tik op een geplaatste kraal om die weg te halen</div>
-        <div id="modePill" class="pill">Modus: tekenen</div>
+        <div class="pill" id="modePill" aria-label="Modus">
+          <span id="modeIcon" aria-hidden="true">✏️</span>
+        </div>
       </div>
     </main>
   </div>
 
   <script>
   (() => {
+    const FIXED_GRID = 19;
+
     const COLORS = [
       { name: "wit", hex: "#ffffff" },
       { name: "zwart", hex: "#111111" },
@@ -282,9 +376,9 @@
     const canvas = el("board");
     const ctx = canvas.getContext("2d");
 
-    const sizeSelect = el("sizeSelect");
     const beadScale = el("beadScale");
     const paletteEl = el("palette");
+
     const clearBtn = el("clearBtn");
     const undoBtn = el("undoBtn");
     const eraserBtn = el("eraserBtn");
@@ -292,18 +386,19 @@
     const printBtn = el("printBtn");
     const saveBtn = el("saveBtn");
     const loadBtn = el("loadBtn");
-    const lockBtn = el("lockBtn");
+    const homeBtn = el("homeBtn");
 
-    const activeColorPill = el("activeColorPill");
-    const countPill = el("countPill");
-    const modePill = el("modePill");
+    const activeColorDot = el("activeColorDot");
+    const countNum = el("countNum");
+    const modeIcon = el("modeIcon");
+
     const saveState = el("saveState");
+    const saveStateText = el("saveStateText");
 
-    const STORAGE_KEY = "kralenplank_designer_v1";
+    const STORAGE_KEY = "kralenplank_designer_v2";
 
-    let gridN = Number(sizeSelect.value);
+    let gridN = FIXED_GRID;
     let beadPx = Number(beadScale.value);
-    let locked = false;
 
     let activeColor = COLORS[0];
     let eraserMode = false;
@@ -311,7 +406,7 @@
     let grid = makeGrid(gridN);
     let history = [];
 
-    const swatchByName = new Map();
+    const swatches = [];
 
     function makeGrid(n){
       return Array.from({length:n}, () => Array.from({length:n}, () => null));
@@ -323,42 +418,61 @@
 
     function pushHistory(){
       history.push(snapshot());
-      if(history.length > 60) history.shift();
+      if(history.length > 80) history.shift();
     }
 
     function setSaved(flag){
-      saveState.textContent = flag ? "Opgeslagen" : "Niet opgeslagen";
+      saveState.style.opacity = flag ? "1" : ".55";
+      saveStateText.textContent = flag ? "Opgeslagen" : "Niet opgeslagen";
     }
 
     function setActiveColor(color){
       activeColor = color;
       eraserMode = false;
-      modePill.textContent = "Modus: tekenen";
-      eraserBtn.classList.toggle("primary", false);
-      activeColorPill.textContent = "Kleur: " + color.name;
+      eraserBtn.classList.remove("primary");
+      modeIcon.textContent = "✏️";
+      activeColorDot.style.background = color.hex;
 
-      for(const swatch of swatchByName.values()){
-        swatch.classList.remove("active");
+      for(const s of swatches){
+        s.classList.remove("active");
       }
-      const activeSwatch = swatchByName.get(color.name);
-      if(activeSwatch) activeSwatch.classList.add("active");
+      const found = swatches.find(x => x.dataset.name === color.name);
+      if(found) found.classList.add("active");
     }
 
     function buildPalette(){
       paletteEl.innerHTML = "";
-      swatchByName.clear();
+      swatches.length = 0;
 
       COLORS.forEach((c, idx) => {
         const item = document.createElement("div");
         item.className = "swatch" + (idx === 0 ? " active" : "");
-        item.innerHTML = `
-          <div class="dot" style="background:${c.hex}"></div>
-          <span>${c.name}</span>
-        `;
-        item.addEventListener("click", () => setActiveColor(c));
+        item.dataset.name = c.name;
+        item.setAttribute("role", "button");
+        item.setAttribute("tabindex", "0");
+        item.setAttribute("aria-label", "Kleur " + c.name);
+        item.title = c.name;
+
+        const dot = document.createElement("div");
+        dot.className = "dot";
+        dot.style.background = c.hex;
+
+        item.appendChild(dot);
+
+        const activate = () => setActiveColor(c);
+        item.addEventListener("click", activate);
+        item.addEventListener("keydown", (e) => {
+          if(e.key === "Enter" || e.key === " "){
+            e.preventDefault();
+            activate();
+          }
+        });
+
         paletteEl.appendChild(item);
-        swatchByName.set(c.name, item);
+        swatches.push(item);
       });
+
+      activeColorDot.style.background = activeColor.hex;
     }
 
     function boardMetrics(){
@@ -391,7 +505,7 @@
       const hole = beadPx * 0.16;
 
       ctx.beginPath();
-      ctx.fillStyle = "rgba(0,0,0,.12)";
+      ctx.fillStyle = "rgba(0,0,0,.10)";
       ctx.arc(x + R*0.12, y + R*0.18, R*1.02, 0, Math.PI*2);
       ctx.fill();
 
@@ -401,7 +515,7 @@
       ctx.fill();
 
       ctx.beginPath();
-      ctx.fillStyle = "rgba(255,255,255,.22)";
+      ctx.fillStyle = "rgba(255,255,255,.20)";
       ctx.arc(x - R*0.25, y - R*0.25, R*0.55, 0, Math.PI*2);
       ctx.fill();
 
@@ -431,7 +545,7 @@
 
           ctx.beginPath();
           ctx.fillStyle = "#111827";
-          ctx.globalAlpha = 0.18;
+          ctx.globalAlpha = 0.12;
           ctx.arc(x,y, Math.max(1.6, beadPx*0.12), 0, Math.PI*2);
           ctx.fill();
           ctx.globalAlpha = 1;
@@ -451,7 +565,7 @@
           if(cell) count++;
         }
       }
-      countPill.textContent = "Geplaatst: " + count;
+      countNum.textContent = String(count);
     }
 
     function screenToCell(px, py){
@@ -545,37 +659,29 @@
       updateCounts();
     }
 
+    function toggleEraser(){
+      eraserMode = !eraserMode;
+      eraserBtn.classList.toggle("primary", eraserMode);
+      modeIcon.textContent = eraserMode ? "🧼" : "✏️";
+    }
+
     function save(){
-      const payload = { v: 1, gridN, beadPx, locked, grid };
+      const payload = { v: 2, gridN, beadPx, grid };
       localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
       setSaved(true);
     }
 
     function load({ silent = false } = {}){
       const raw = localStorage.getItem(STORAGE_KEY);
-      if(!raw){
-        if(!silent) alert("Nog niets opgeslagen");
-        return false;
-      }
+      if(!raw) return false;
 
       let payload;
       try{ payload = JSON.parse(raw); }
-      catch {
-        if(!silent) alert("Opslag is beschadigd");
-        return false;
-      }
+      catch { return false; }
 
-      if(payload && payload.grid && payload.gridN){
-        gridN = Number(payload.gridN);
+      if(payload && payload.grid && payload.gridN === FIXED_GRID){
         beadPx = Number(payload.beadPx || beadPx);
-        locked = Boolean(payload.locked);
-
-        sizeSelect.value = String(gridN);
         beadScale.value = String(beadPx);
-
-        sizeSelect.disabled = locked;
-        lockBtn.textContent = locked ? "Formaat staat vast" : "Formaat vastzetten";
-        lockBtn.classList.toggle("primary", !locked);
 
         grid = payload.grid;
         history = [];
@@ -585,7 +691,7 @@
         return true;
       }
 
-      if(!silent) alert("Opslag heeft een onbekend formaat");
+      if(!silent){}
       return false;
     }
 
@@ -601,65 +707,49 @@
     }
 
     function printBoard(){
-  draw();
-  const url = canvas.toDataURL("image/png");
-  const w = window.open("", "_blank");
-  if(!w) return alert("Pop up geblokkeerd, sta pop ups toe voor printen");
+      draw();
+      const url = canvas.toDataURL("image/png");
+      const w = window.open("", "_blank");
+      if(!w) return;
 
-  w.document.open();
-  w.document.write(`
-    <html>
-      <head>
-        <title>Print kralenplank</title>
-        <meta name="viewport" content="width=device-width,initial-scale=1" />
-        <style>
-          body{margin:0;display:flex;align-items:center;justify-content:center;background:#fff}
-          img{max-width:95vw;max-height:95vh}
-        </style>
-      </head>
-      <body>
-        <img id="img" src="${url}" alt="kralenplank" />
-      </body>
-    </html>
-  `);
-  w.document.close();
+      w.document.open();
+      w.document.write(`
+        <html>
+          <head>
+            <title>Print</title>
+            <meta name="viewport" content="width=device-width,initial-scale=1" />
+            <style>
+              body{margin:0;display:flex;align-items:center;justify-content:center;background:#fff}
+              img{max-width:95vw;max-height:95vh}
+            </style>
+          </head>
+          <body>
+            <img id="img" src="${url}" alt="kralenplank" />
+          </body>
+        </html>
+      `);
+      w.document.close();
 
-  const img = w.document.getElementById("img");
-  const tryPrint = () => {
-    try { w.focus(); w.print(); } catch {}
-  };
+      const img = w.document.getElementById("img");
+      const tryPrint = () => {
+        try { w.focus(); w.print(); } catch {}
+      };
 
-  if(img){
-    img.onload = () => tryPrint();
-    img.onerror = () => tryPrint();
-  } else {
-    setTimeout(() => tryPrint(), 250);
-  }
-}
-
-    function toggleEraser(){
-      eraserMode = !eraserMode;
-      modePill.textContent = eraserMode ? "Modus: gum" : "Modus: tekenen";
-      eraserBtn.classList.toggle("primary", eraserMode);
+      if(img){
+        img.onload = () => tryPrint();
+        img.onerror = () => tryPrint();
+      } else {
+        setTimeout(() => tryPrint(), 250);
+      }
     }
 
-    function lockSize(){
-      locked = !locked;
-      sizeSelect.disabled = locked;
-      lockBtn.textContent = locked ? "Formaat staat vast" : "Formaat vastzetten";
-      lockBtn.classList.toggle("primary", !locked);
-      setSaved(false);
-    }
-
-    sizeSelect.addEventListener("change", () => {
-      if(locked) return;
-      gridN = Number(sizeSelect.value);
+    function newDesign(){
       history = [];
       grid = makeGrid(gridN);
       setSaved(false);
       draw();
       updateCounts();
-    });
+    }
 
     beadScale.addEventListener("input", () => {
       beadPx = Number(beadScale.value);
@@ -673,8 +763,8 @@
     exportBtn.addEventListener("click", exportPNG);
     printBtn.addEventListener("click", printBoard);
     saveBtn.addEventListener("click", save);
-    loadBtn.addEventListener("click", () => load({ silent: false }));
-    lockBtn.addEventListener("click", lockSize);
+    loadBtn.addEventListener("click", () => load({ silent: true }));
+    homeBtn.addEventListener("click", newDesign);
 
     canvas.addEventListener("pointerdown", onPointerDown, { passive: false });
     canvas.addEventListener("pointermove", onPointerMove, { passive: false });
@@ -684,6 +774,7 @@
     buildPalette();
     draw();
     updateCounts();
+    setSaved(false);
 
     load({ silent: true });
   })();
