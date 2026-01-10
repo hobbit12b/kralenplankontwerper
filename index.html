@@ -9,6 +9,58 @@
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
+<svg aria-hidden="true" style="position:absolute;width:0;height:0;overflow:hidden">
+  <symbol id="i-new" viewBox="0 0 24 24">
+    <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="i-import" viewBox="0 0 24 24">
+    <path d="M12 3v10" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+    <path d="M8 9l4 4 4-4" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M5 21h14" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="i-print" viewBox="0 0 24 24">
+    <path d="M7 8V4h10v4" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M7 17v3h10v-3" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M6 10h12a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2Z" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/>
+  </symbol>
+  <symbol id="i-open" viewBox="0 0 24 24">
+    <path d="M4 19h16" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+    <path d="M7 16l5-5 5 5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M12 4v7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="i-save" viewBox="0 0 24 24">
+    <path d="M7 21h10a2 2 0 0 0 2-2V8l-3-3H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2Z" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/>
+    <path d="M8 21v-7h8v7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/>
+    <path d="M9 5h6v4H9z" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/>
+  </symbol>
+  <symbol id="i-undo" viewBox="0 0 24 24">
+    <path d="M9 10H5V6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M5 10c2-4 6-6 10-4 4 2 5 7 3 11" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="i-redo" viewBox="0 0 24 24">
+    <path d="M15 10h4V6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M19 10c-2-4-6-6-10-4-4 2-5 7-3 11" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="i-eraser" viewBox="0 0 24 24">
+    <path d="M4 15l7-7a2 2 0 0 1 3 0l6 6a2 2 0 0 1 0 3l-3 3H9l-5-5a2 2 0 0 1 0-3Z" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/>
+    <path d="M9 20l4-4" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="i-pen" viewBox="0 0 24 24">
+    <path d="M4 20l4-1 10-10-3-3L5 16l-1 4Z" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/>
+    <path d="M14 5l3 3" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="i-zoom-in" viewBox="0 0 24 24">
+    <path d="M11 7v8M7 11h8" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+    <path d="M21 21l-4.3-4.3" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+    <circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2.2"/>
+  </symbol>
+  <symbol id="i-zoom-out" viewBox="0 0 24 24">
+    <path d="M7 11h8" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+    <path d="M21 21l-4.3-4.3" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+    <circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2.2"/>
+  </symbol>
+</svg>
+
   <header class="topbar">
     <div class="brand">
       <div class="app-title">Kralenplankontwerper</div>
@@ -18,8 +70,8 @@
       </div>
     </div>
     <div class="top-actions">
-<button id="btnOpen" class="btn">Open</button>
-      <button id="btnSave" class="btn primary">Opslaan</button>
+<button id="btnOpen" class="btn icon-btn"><svg class="ico"><use href="#i-open"></use></svg><span class="btn-label">Open</span></button>
+      <button id="btnSave" class="btn primary icon-btn"><svg class="ico"><use href="#i-save"></use></svg><span class="btn-label">Opslaan</span></button>
     </div>
   </header>
 
@@ -28,11 +80,11 @@
       <section class="panel">
   <div class="panel-title">Bestand</div>
   <div class="btn-row">
-    <button id="btnNewFile" class="btn">Nieuw</button>
+    <button id="btnNewFile" class="btn icon-btn"><svg class="ico"><use href="#i-new"></use></svg><span class="btn-label">Nieuw</span></button>
   </div>
   <div class="btn-row">
-    <button id="btnImport" class="btn">Importeer foto of illustratie</button>
-    <button id="btnPrint" class="btn">Print</button>
+    <button id="btnImport" class="btn icon-btn"><svg class="ico"><use href="#i-import"></use></svg><span class="btn-label">Importeer foto of illustratie</span></button>
+    <button id="btnPrint" class="btn icon-btn"><svg class="ico"><use href="#i-print"></use></svg><span class="btn-label">Print</span></button>
   </div>
   <div class="hint">Tip: voor ware grootte kies in het printvenster, Ware grootte.</div>
 </section>
@@ -67,9 +119,9 @@
 <section class="panel">
   <div class="panel-title">Tools</div>
   <div class="btn-row">
-    <button id="btnEraser" class="btn">Gum</button>
-    <button id="btnUndo" class="btn">Undo</button>
-    <button id="btnRedo" class="btn">Redo</button>
+    <button id="btnEraser" class="btn icon-btn"><svg class="ico"><use href="#i-eraser"></use></svg><span class="btn-label">Gum</span></button>
+    <button id="btnUndo" class="btn icon-btn"><svg class="ico"><use href="#i-undo"></use></svg><span class="btn-label">Undo</span></button>
+    <button id="btnRedo" class="btn icon-btn"><svg class="ico"><use href="#i-redo"></use></svg><span class="btn-label">Redo</span></button>
   </div>
   <div class="hint">Tip: klik op een kleur om weer te tekenen.</div>
 </section>
@@ -85,11 +137,18 @@
     <section class="stage">
       <div class="board-wrap">
         <div class="board-toolbar">
-          <div class="zoom-row">
-            <button id="btnZoomOut" class="btn">Zoom uit</button>
-            <input id="zoom" type="range" min="0.4" max="2.5" step="0.05" value="1" />
-            <button id="btnZoomIn" class="btn">Zoom in</button>
-          </div>
+          <div class="tool-row">
+  <button id="tbZoomOut" class="btn icon-btn small" title="Zoom uit"><svg class="ico"><use href="#i-zoom-out"></use></svg><span class="sr">Zoom uit</span></button>
+  <input id="zoom" type="range" min="0.4" max="2.5" step="0.05" value="1" />
+  <button id="tbZoomIn" class="btn icon-btn small" title="Zoom in"><svg class="ico"><use href="#i-zoom-in"></use></svg><span class="sr">Zoom in</span></button>
+
+  <div class="tool-sep"></div>
+
+  <button id="tbPaint" class="btn icon-btn small" title="Tekenen"><svg class="ico"><use href="#i-pen"></use></svg><span class="sr">Tekenen</span></button>
+  <button id="tbEraser" class="btn icon-btn small" title="Gum"><svg class="ico"><use href="#i-eraser"></use></svg><span class="sr">Gum</span></button>
+  <button id="tbUndo" class="btn icon-btn small" title="Undo"><svg class="ico"><use href="#i-undo"></use></svg><span class="sr">Undo</span></button>
+  <button id="tbRedo" class="btn icon-btn small" title="Redo"><svg class="ico"><use href="#i-redo"></use></svg><span class="sr">Redo</span></button>
+</div>
           <div class="active-color-row">
             <div>Actieve kleur:</div>
             <div id="activeColorChip" class="chip"></div>

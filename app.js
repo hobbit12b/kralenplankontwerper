@@ -31,10 +31,16 @@ const App = (() => {
   }
 
   function refreshToolUI(){
+    const on = state.activeTool === "erase";
+
     const btn = document.getElementById("btnEraser");
-    if(!btn) return;
-    btn.classList.toggle("btn-toggle-on", state.activeTool === "erase");
-    btn.textContent = state.activeTool === "erase" ? "Gum aan" : "Gum";
+    if(btn) btn.classList.toggle("btn-toggle-on", on);
+
+    const tb = document.getElementById("tbEraser");
+    if(tb) tb.classList.toggle("btn-toggle-on", on);
+
+    const paint = document.getElementById("tbPaint");
+    if(paint) paint.classList.toggle("btn-toggle-on", !on);
   }
 
   function setActiveTool(tool){
@@ -411,7 +417,27 @@ function serialize(){
 document.getElementById("btnUndo").addEventListener("click", () => undo());
     document.getElementById("btnRedo").addEventListener("click", () => redo());
 
-    const er = document.getElementById("btnEraser");
+    
+    /* bovenbalk sneltoetsen */
+    const tbUndo = document.getElementById("tbUndo");
+    if(tbUndo) tbUndo.addEventListener("click", () => undo());
+
+    const tbRedo = document.getElementById("tbRedo");
+    if(tbRedo) tbRedo.addEventListener("click", () => redo());
+
+    const tbEraser = document.getElementById("tbEraser");
+    if(tbEraser){
+      tbEraser.addEventListener("click", () => {
+        setActiveTool(state.activeTool === "erase" ? "paint" : "erase");
+      });
+    }
+
+    const tbPaint = document.getElementById("tbPaint");
+    if(tbPaint){
+      tbPaint.addEventListener("click", () => setActiveTool("paint"));
+    }
+
+const er = document.getElementById("btnEraser");
     if(er){
       er.addEventListener("click", () => {
         setActiveTool(state.activeTool === "erase" ? "paint" : "erase");
@@ -422,18 +448,26 @@ document.getElementById("btnUndo").addEventListener("click", () => undo());
       state.zoom = parseFloat(e.target.value);
       redrawBoard();
     });
-    document.getElementById("btnZoomIn").addEventListener("click", () => {
-      state.zoom = Math.min(2.5, state.zoom + 0.15);
-      document.getElementById("zoom").value = state.zoom;
-      redrawBoard();
-    });
-    document.getElementById("btnZoomOut").addEventListener("click", () => {
-      state.zoom = Math.max(0.4, state.zoom - 0.15);
-      document.getElementById("zoom").value = state.zoom;
-      redrawBoard();
-    });
+    (function(){
+      const zoomIn = document.getElementById("tbZoomIn") || document.getElementById("btnZoomIn");
+      const zoomOut = document.getElementById("tbZoomOut") || document.getElementById("btnZoomOut");
+      if(zoomIn){
+        zoomIn.addEventListener("click", () => {
+          state.zoom = Math.min(2.5, state.zoom + 0.15);
+          document.getElementById("zoom").value = state.zoom;
+          redrawBoard();
+        });
+      }
+      if(zoomOut){
+        zoomOut.addEventListener("click", () => {
+          state.zoom = Math.max(0.4, state.zoom - 0.15);
+          document.getElementById("zoom").value = state.zoom;
+          redrawBoard();
+        });
+      }
+    })();
 
-    document.getElementById("btnAddExtra").addEventListener("click", () => addExtraColor());
+document.getElementById("btnAddExtra").addEventListener("click", () => addExtraColor());
 
     document.getElementById("btnPrint").addEventListener("click", () => window.print());
 
