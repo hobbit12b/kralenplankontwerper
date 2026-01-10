@@ -697,7 +697,12 @@
         "Tekenen: tik of sleep\n" +
         "Gum: druk op 🧼\n" +
         "Foto: druk op 📷\n" +
-        "Foto modus: druk op 🧩 of 🎨\n" +st clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+        "Foto modus: druk op 🧩 of 🎨\n" +
+        "Tip: zoom uit om het plaatje te herkennen"
+      );
+    }
+
+    const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 
     function setZoom(v){
       zoom = clamp(v, Number(zoomRange.min), Number(zoomRange.max));
