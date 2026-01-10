@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Kralenplankontwerper</title>
+    <link rel="icon" href="./favicon.ico">
+  <link rel="shortcut icon" href="./favicon.ico">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <div class="app-title">Kralenplankontwerper</div>
+      <div class="name-row">
+        <label for="designName">Kralenplank:</label>
+        <input id="designName" type="text" placeholder="Geef je plank een naam" />
+      </div>
+    </div>
+    <div class="top-actions">
+<button id="btnOpen" class="btn">Open</button>
+      <button id="btnSave" class="btn primary">Opslaan</button>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <section class="panel">
+  <div class="panel-title">Bestand</div>
+  <div class="btn-row">
+    <button id="btnNewFile" class="btn">Nieuw</button>
+  </div>
+  <div class="btn-row">
+    <button id="btnImport" class="btn">Importeer foto of illustratie</button>
+    <button id="btnPrint" class="btn">Print</button>
+  </div>
+  <div class="hint">Tip: voor ware grootte kies in het printvenster, Ware grootte.</div>
+</section>
+
+      <section class="panel">
+        <div class="panel-title">Recente ontwerpen</div>
+        <div id="recents" class="recents-grid"></div>
+        <div class="btn-row">
+          <button id="btnManageRecents" class="btn">Beheren</button>
+          <button id="btnExportPack" class="btn">Export</button>
+          <button id="btnImportPack" class="btn">Import</button>
+          <input id="packFile" type="file" accept="application/json" hidden />
+          <input id="projectFile" type="file" accept="application/json" hidden />
+        </div>
+      </section>
+
+      <section class="panel colors-panel">
+        <div class="panel-title">Kleuren</div>
+        <div id="paletteBase" class="palette-grid"></div>
+
+        <details class="extras">
+          <summary>Extra kleuren</summary>
+          <div id="paletteExtras" class="palette-grid extras-grid"></div>
+          <div class="extras-form">
+            <input id="extraName" type="text" placeholder="Naam" />
+            <input id="extraHex" type="color" value="#D4AF37" />
+            <button id="btnAddExtra" class="btn">Voeg kleur toe</button>
+          </div>
+        </details>
+      </section>
+
+<section class="panel">
+  <div class="panel-title">Tools</div>
+  <div class="btn-row">
+    <button id="btnEraser" class="btn">Gum</button>
+    <button id="btnUndo" class="btn">Undo</button>
+    <button id="btnRedo" class="btn">Redo</button>
+  </div>
+  <div class="hint">Tip: klik op een kleur om weer te tekenen.</div>
+</section>
+
+      <section class="panel mini-panel">
+        <div class="panel-title">Mini voorbeeld</div>
+        <div id="miniPreview" class="mini-preview-host"></div>
+        <div class="hint">Dit is je huidige kralenplank in het klein</div>
+      </section>
+
+    </aside>
+
+    <section class="stage">
+      <div class="board-wrap">
+        <div class="board-toolbar">
+          <div class="zoom-row">
+            <button id="btnZoomOut" class="btn">Zoom uit</button>
+            <input id="zoom" type="range" min="0.4" max="2.5" step="0.05" value="1" />
+            <button id="btnZoomIn" class="btn">Zoom in</button>
+          </div>
+          <div class="active-color-row">
+            <div>Actieve kleur:</div>
+            <div id="activeColorChip" class="chip"></div>
+            <div id="activeColorName" class="active-name"></div>
+          </div>
+        </div>
+
+        <div id="boardHost" class="board-host"></div>
+      </div>
+    </section>
+  </main>
+
+  <dialog id="importDialog" class="modal">
+    <form method="dialog" class="modal-inner" id="importForm">
+      <div class="modal-head">
+        <div class="modal-title">Importeer naar 19x19</div>
+        <button class="btn" value="cancel">Sluiten</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="import-left">
+          <input id="importFile" type="file" accept="image/*" />
+
+          <div class="preset-row">
+            <button type="button" id="presetIllustration" class="btn primary">Illustratie</button>
+            <button type="button" id="presetPhoto" class="btn">Foto</button>
+          </div>
+
+          <div class="toggle-row">
+            <label class="toggle">
+              <input id="placeWhite" type="checkbox" />
+              <span>Wit ook als achtergrond</span>
+            </label>
+            <label class="toggle">
+              <input id="useEdges" type="checkbox" checked />
+              <span>Zwart voor lijnen</span>
+            </label>
+          </div>
+
+          <div class="slider-row">
+            <label for="bgThreshold">Achtergrond drempel</label>
+            <input id="bgThreshold" type="range" min="0" max="100" step="1" value="62" />
+          </div>
+
+          <div class="slider-row">
+            <label for="simplify">Versimpeling</label>
+            <input id="simplify" type="range" min="0" max="100" step="1" value="72" />
+          </div>
+
+          <div class="slider-row" id="edgeStrengthRow">
+            <label for="edgeStrength">Lijnen accent</label>
+            <input id="edgeStrength" type="range" min="0" max="100" step="1" value="55" />
+          </div>
+
+          <div class="toggle-row">
+            <label class="toggle">
+              <input id="allowExtrasInImport" type="checkbox" />
+              <span>Extra kleuren gebruiken</span>
+            </label>
+          </div>
+
+          <div class="btn-row">
+            <button type="button" id="btnApplyImport" class="btn primary">Zet op plank</button>
+          </div>
+
+          <div class="mini-note">
+            Bij sommige illustraties zitten lichte grijstinten. Dan helpt het vaak om Wit plaatsen even aan te zetten.
+          </div>
+        </div>
+
+        <div class="import-right">
+          <div class="preview-title">Preview, ronde kralen</div>
+          <div id="importPreviewHost" class="preview-host"></div>
+          <div class="preview-hint">Tip: bij illustraties werkt zwart voor lijnen vaak het best</div>
+        </div>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="palette.js"></script>
+  <script src="storage.js"></script>
+  <script src="import.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
