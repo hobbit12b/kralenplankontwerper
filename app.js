@@ -671,10 +671,10 @@ document.getElementById("btnUndo")?.addEventListener("click", () => undo());
     document.getElementById("btnRedo")?.addEventListener("click", () => redo());
 
     /* Bovenbalk tools */
-    const tbUndo = $("tbUndo");
-    const tbRedo = $("tbRedo");
-    if(tbUndo) tbUndo.addEventListener("click", () => undo());
-    if(tbRedo) tbRedo.addEventListener("click", () => redo());
+    const tbUndoBtn = $("tbUndo");
+    const tbRedoBtn = $("tbRedo");
+    if(tbUndoBtn) tbUndoBtn.addEventListener("click", () => undo());
+    if(tbRedoBtn) tbRedoBtn.addEventListener("click", () => redo());
 
     const tbToggle = $("tbToggleDraw");
     if(tbToggle){
@@ -706,10 +706,10 @@ document.getElementById("btnUndo")?.addEventListener("click", () => undo());
     
     /* bovenbalk sneltoetsen */
     const tbUndo = document.getElementById("tbUndo");
-    if(tbUndo) tbUndo.addEventListener("click", () => undo());
+    if(tbUndoBtn) tbUndoBtn.addEventListener("click", () => undo());
 
     const tbRedo = document.getElementById("tbRedo");
-    if(tbRedo) tbRedo.addEventListener("click", () => redo());
+    if(tbRedoBtn) tbRedoBtn.addEventListener("click", () => redo());
 
     const tbEraser = document.getElementById("tbEraser");
     if(tbEraser){
