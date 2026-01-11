@@ -670,6 +670,39 @@ function paintCell(r,c){
 document.getElementById("btnUndo")?.addEventListener("click", () => undo());
     document.getElementById("btnRedo")?.addEventListener("click", () => redo());
 
+    /* Bovenbalk tools */
+    const tbUndo = $("tbUndo");
+    const tbRedo = $("tbRedo");
+    if(tbUndo) tbUndo.addEventListener("click", () => undo());
+    if(tbRedo) tbRedo.addEventListener("click", () => redo());
+
+    const tbToggle = $("tbToggleDraw");
+    if(tbToggle){
+      tbToggle.addEventListener("click", () => {
+        const m = state.toolMode || "paint";
+        setActiveTool(m === "erase" ? "paint" : "erase");
+      });
+    }
+
+    const toolBtns = [
+      ["tbLine","line"],
+      ["tbRect","rect"],
+      ["tbCircle","circle"],
+      ["tbTri","tri"]
+    ];
+    for(const [id, mode] of toolBtns){
+      const b = $(id);
+      if(b){
+        b.addEventListener("click", () => setActiveTool(mode));
+      }
+    }
+
+    const zIn = $("tbZoomIn");
+    const zOut = $("tbZoomOut");
+    if(zIn) zIn.addEventListener("click", () => { state.zoom = Math.min(3, (state.zoom||1) + 0.1); redrawBoard(); });
+    if(zOut) zOut.addEventListener("click", () => { state.zoom = Math.max(0.3, (state.zoom||1) - 0.1); redrawBoard(); });
+
+
     
     /* bovenbalk sneltoetsen */
     const tbUndo = document.getElementById("tbUndo");
