@@ -393,17 +393,31 @@ function serialize(){
   }
 
   function circleOutline(r0,c0,r1,c1){
-    const cr=r0, cc=c0;
-    const rad = Math.round(Math.hypot(r1-r0, c1-c0));
+    const rMin=Math.min(r0,r1), rMax=Math.max(r0,r1);
+    const cMin=Math.min(c0,c1), cMax=Math.max(c0,c1);
+
+    // middelpunt en stralen op roosterbasis
+    const cy=(rMin+rMax)/2;
+    const cx=(cMin+cMax)/2;
+    const ry=(rMax-rMin)/2;
+    const rx=(cMax-cMin)/2;
+
+    // klik zonder slepen
+    if(rx===0 && ry===0) return [{r:r0,c:c0}];
+
     const pts=[];
-    let x=rad, y=0, err=0;
-    while(x>=y){
-      pts.push({r:cr+y,c:cc+x},{r:cr+x,c:cc+y},{r:cr+x,c:cc-y},{r:cr+y,c:cc-x},
-               {r:cr-y,c:cc-x},{r:cr-x,c:cc-y},{r:cr-x,c:cc+y},{r:cr-y,c:cc+x});
-      y++;
-      if(err<=0){ err += 2*y + 1; }
-      if(err>0){ x--; err -= 2*x + 1; }
+    const R = Math.max(rx, ry);
+    const steps = Math.max(36, Math.ceil(2*Math.PI*R*6)); // genoeg samples voor kleine roosters
+
+    for(let i=0;i<steps;i++){
+      const a = (i/steps) * Math.PI*2;
+      const rr = Math.round(cy + ry*Math.sin(a));
+      const cc = Math.round(cx + rx*Math.cos(a));
+      pts.push({r:rr,c:cc});
     }
+
+    return uniqPts(pts);
+  }
     return uniqPts(pts);
   }
 
@@ -441,15 +455,26 @@ function hitTestCell(svg, clientX, clientY){
     const cell = state.boardSize / (N + 3);
     const origin = 2 * cell; // wit rand (1) + houtmarge (1)
 
-    const c = Math.round((sx - origin) / cell);
-    const r = Math.round((sy - origin) / cell);
+    // snel buitengebied afvangen
+    const min = origin - cell*0.65;
+    const max = origin + (N-1)*cell + cell*0.65;
+    if(sx < min || sy < min || sx > max || sy > max) return null;
+
+    // dichtstbijzijnde spijker kiezen op basis van afstand tot het centrum
+    let c = Math.round((sx - origin) / cell);
+    let r = Math.round((sy - origin) / cell);
 
     if(r < 0 || r >= N || c < 0 || c >= N) return null;
 
-    /* klik moet wel binnen het houtvlak vallen */
-    const min = origin - cell*0.55;
-    const max = origin + (N-1)*cell + cell*0.55;
-    if(sx < min || sy < min || sx > max || sy > max) return null;
+    const cx = origin + c*cell;
+    const cy = origin + r*cell;
+
+    const dx = sx - cx;
+    const dy = sy - cy;
+    const dist = Math.hypot(dx, dy);
+
+    // klik moet redelijk dicht bij een spijker zitten
+    if(dist > cell*0.65) return null;
 
     return {r,c};
   }
@@ -458,6 +483,11 @@ function hitTestCell(svg, clientX, clientY){
     const svg = e.currentTarget;
     const hit = hitTestCell(svg, e.clientX, e.clientY);
     if(!hit) return;
+
+    // zorg dat we alle moves en pointerup krijgen, ook als je buiten de plank komt
+    if(svg.setPointerCapture && e.pointerId != null){
+      try{ svg.setPointerCapture(e.pointerId); }catch(_){ /* ignore */ }
+    }
 
     state.shapePreview = null;
 
@@ -492,7 +522,7 @@ function hitTestCell(svg, clientX, clientY){
 
     // vormen
     drawing = null;
-    shapeDrag = {mode, start: hit, end: hit};
+    shapeDrag = {mode, start: hit, end: hit, pointerId: e.pointerId};
     state.shapeStart = hit;
     state.shapePreview = pointsForShape(mode, hit, hit);
     redrawBoard();
@@ -502,6 +532,7 @@ function hitTestCell(svg, clientX, clientY){
 
   function onPointerMove(e){
     if(drawing){
+      if(drawing.pointerId != null && e.pointerId != null && e.pointerId !== drawing.pointerId) return;
       const svg = document.querySelector("#boardHost svg");
       if(!svg) return;
 
@@ -515,7 +546,9 @@ function hitTestCell(svg, clientX, clientY){
 
     if(!shapeDrag) return;
 
-    const svg = document.querySelector("#boardHost svg");
+    if(shapeDrag.pointerId != null && e.pointerId != null && e.pointerId !== shapeDrag.pointerId) return;
+
+    const svg = e.currentTarget || document.querySelector("#boardHost svg");
     if(!svg) return;
 
     const hit = hitTestCell(svg, e.clientX, e.clientY);
@@ -528,14 +561,22 @@ function hitTestCell(svg, clientX, clientY){
   }
 
 
-  function onPointerUp(){
+  function onPointerUp(e){
+    const svg = document.querySelector("#boardHost svg");
+    if(svg && svg.releasePointerCapture && e && e.pointerId != null){
+      try{ svg.releasePointerCapture(e.pointerId); }catch(_){ /* ignore */ }
+    }
+
     if(drawing){
+      if(drawing.pointerId != null && e && e.pointerId != null && e.pointerId !== drawing.pointerId) return;
       if(drawing.changes.length) pushUndo(drawing.changes);
       drawing = null;
       return;
     }
 
     if(!shapeDrag) return;
+
+    if(shapeDrag.pointerId != null && e && e.pointerId != null && e.pointerId !== shapeDrag.pointerId) return;
 
     const pts = pointsForShape(shapeDrag.mode, shapeDrag.start, shapeDrag.end);
     applyShapePoints(pts);
