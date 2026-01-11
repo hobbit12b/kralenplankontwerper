@@ -619,13 +619,15 @@ function paintCell(r,c){
   }
 
   function wireUI(){
+    const $ = (id) => document.getElementById(id);
+
     document.getElementById("designName").addEventListener("input", (e) => {
       state.name = e.target.value;
       scheduleSave();
     });
 
-    document.getElementById("btnNewFile").addEventListener("click", () => createNew());
-
+    const bNew = $("btnNew") || $("btnNewFile");
+    if(bNew) bNew.addEventListener("click", () => createNew());
 document.getElementById("btnUndo")?.addEventListener("click", () => undo());
     document.getElementById("btnRedo")?.addEventListener("click", () => redo());
 
@@ -656,7 +658,7 @@ const er = document.getElementById("btnEraser");
       });
     }
 
-    document.getElementById("zoom").addEventListener("input", (e) => {
+    $("zoom")?.addEventListener("input", (e) => {
       state.zoom = parseFloat(e.target.value);
       redrawBoard();
     });
@@ -679,21 +681,20 @@ const er = document.getElementById("btnEraser");
       }
     })();
 
-document.getElementById("btnAddExtra").addEventListener("click", () => addExtraColor());
+$("btnAddExtra")?.addEventListener("click", () => addExtraColor());
 
-    document.getElementById("btnPrint").addEventListener("click", () => window.print());
+    $("btnPrint")?.addEventListener("click", () => window.print());
 
-    document.getElementById("btnImport").addEventListener("click", () => {
-      document.getElementById("importDialog").showModal();
+    const bImport = $("btnImportImage") || $("btnImport");
+    if(bImport) bImport.addEventListener("click", () => {
+      $("importDialog")?.showModal();
+    });
+$("useEdges")?.addEventListener("change", () => {
+      const row = $("edgeStrengthRow");
+      if(row) row.style.display = $("useEdges")?.checked ? "flex" : "none";
     });
 
-    
-    document.getElementById("useEdges").addEventListener("change", () => {
-      const row = document.getElementById("edgeStrengthRow");
-      row.style.display = document.getElementById("useEdges").checked ? "flex" : "none";
-    });
-
-document.getElementById("btnApplyImport").addEventListener("click", async () => {
+$("btnApplyImport")?.addEventListener("click", async () => {
       const img = window.__importImage;
       if(!img) return;
 
@@ -718,10 +719,10 @@ document.getElementById("btnApplyImport").addEventListener("click", async () => 
       document.getElementById("importDialog").close();
     });
 
-    document.getElementById("presetIllustration").addEventListener("click", () => setImportPreset("illustration"));
-    document.getElementById("presetPhoto").addEventListener("click", () => setImportPreset("photo"));
+    $("presetIllustration")?.addEventListener("click", () => setImportPreset("illustration"));
+    $("presetPhoto")?.addEventListener("click", () => setImportPreset("photo"));
 
-    document.getElementById("importFile").addEventListener("change", async (e) => {
+    $("importFile")?.addEventListener("change", async (e) => {
       const file = e.target.files?.[0];
       if(!file) return;
       const img = await fileToImage(file);
@@ -733,7 +734,7 @@ document.getElementById("btnApplyImport").addEventListener("click", async () => 
       document.getElementById(id).addEventListener("input", () => updateImportPreview());
     }
 
-    document.getElementById("btnExportPack").addEventListener("click", async () => {
+    $("btnExportPack")?.addEventListener("click", async () => {
       const pack = await StorageProvider.exportPack();
       const blob = new Blob([JSON.stringify(pack, null, 2)], {type:"application/json"});
       const a = document.createElement("a");
@@ -743,11 +744,11 @@ document.getElementById("btnApplyImport").addEventListener("click", async () => 
       URL.revokeObjectURL(a.href);
     });
 
-    document.getElementById("btnImportPack").addEventListener("click", () => {
+    $("btnImportPack")?.addEventListener("click", () => {
       document.getElementById("packFile").click();
     });
 
-    document.getElementById("projectFile").addEventListener("change", async (e) => {
+    $("projectFile")?.addEventListener("change", async (e) => {
       const f = e.target.files?.[0];
       if(!f) return;
       try{
@@ -765,7 +766,7 @@ document.getElementById("btnApplyImport").addEventListener("click", async () => 
       }
     });
 
-    document.getElementById("packFile").addEventListener("change", async (e) => {
+    $("packFile")?.addEventListener("change", async (e) => {
       const f = e.target.files?.[0];
       if(!f) return;
       const text = await f.text();
@@ -774,12 +775,12 @@ document.getElementById("btnApplyImport").addEventListener("click", async () => 
       await renderRecents();
     });
 
-    document.getElementById("btnOpen").addEventListener("click", () => {
+    $("btnOpen")?.addEventListener("click", () => {
       document.getElementById("projectFile").click();
     });
 
 
-    document.getElementById("btnSave").addEventListener("click", async () => {
+    $("btnSave")?.addEventListener("click", async () => {
       const design = serialize();
       await StorageProvider.saveDesign(design);
       await renderRecents();
