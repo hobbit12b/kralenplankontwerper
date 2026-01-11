@@ -47,6 +47,16 @@ const App = (() => {
     }
 
     const mapping = [["tbLine","line"],["tbRect","rect"],["tbCircle","circle"],["tbTri","tri"]];
+    const dot = document.getElementById("activeColorDot");
+    const name = document.getElementById("activeColorName");
+    if(dot || name){
+      const pm = paletteMap();
+      const c = pm.get(state.activeColorId);
+      const hex = (state.activeColorId === "white") ? "#ffffff" : (c?.hex || "#000000");
+      if(dot) dot.style.background = hex;
+      if(name) name.textContent = c?.name || state.activeColorId;
+    }
+
     for(const [id, m] of mapping){
       const b = document.getElementById(id);
       if(b) b.classList.toggle("btn-toggle-on", mode === m);
@@ -847,7 +857,11 @@ document.getElementById("btnApplyImport").addEventListener("click", async () => 
     });
   }
 
-  async function init(){
+  async function saveProject(){ document.getElementById('btnExport')?.click(); }
+
+function newProject(){ newDesign(); }
+
+function init(){
     redrawPaletteBase();
     redrawPaletteExtras();
     setActiveColor(state.activeColorId);

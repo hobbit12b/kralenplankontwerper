@@ -83,24 +83,20 @@
         <input id="designName" type="text" placeholder="Geef je plank een naam" />
       </div>
     </div>
-    <div class="top-actions">
-<button id="btnOpen" class="btn icon-btn"><svg class="ico"><use href="#i-open"></use></svg><span class="btn-label">Open</span></button>
-      <button id="btnSave" class="btn primary icon-btn"><svg class="ico"><use href="#i-save"></use></svg><span class="btn-label">Opslaan</span></button>
-    </div>
-  </header>
+    </header>
 
   <main class="layout">
     <aside class="sidebar">
       <section class="panel">
   <div class="panel-title">Bestand</div>
-  <div class="btn-row">
-    <button id="btnNewFile" class="btn icon-btn"><svg class="ico"><use href="#i-new"></use></svg><span class="btn-label">Nieuw</span></button>
+  <div class="btn-grid">
+    <button id="btnNew" class="btn icon-left"><svg class="ico"><use href="#i-new"></use></svg><span>Nieuw</span></button>
+    <button id="btnOpen" class="btn icon-left"><svg class="ico"><use href="#i-folder"></use></svg><span>Open</span></button>
+    <button id="btnSave" class="btn icon-left"><svg class="ico"><use href="#i-save"></use></svg><span>Opslaan</span></button>
+    <button id="btnImportImage" class="btn icon-left"><svg class="ico"><use href="#i-import"></use></svg><span>Importeer foto of illustratie</span></button>
+    <button id="btnPrint" class="btn icon-left"><svg class="ico"><use href="#i-print"></use></svg><span>Print</span></button>
   </div>
-  <div class="btn-row">
-    <button id="btnImport" class="btn icon-btn"><svg class="ico"><use href="#i-import"></use></svg><span class="btn-label">Importeer foto of illustratie</span></button>
-    <button id="btnPrint" class="btn icon-btn"><svg class="ico"><use href="#i-print"></use></svg><span class="btn-label">Print</span></button>
-  </div>
-  <div class="hint">Tip: voor ware grootte kies in het printvenster, Ware grootte.</div>
+  <div class="muted tip">Tip: voor ware grootte kies in het printvenster: Ware grootte.</div>
 </section>
 
       <section class="panel">
@@ -141,12 +137,12 @@
     <section class="stage">
       <div class="board-wrap">
         <div class="board-toolbar">
-          <div class="tool-row">
+          <div class="toolbar-top"><div class="tool-row">
   <button id="tbToggleDraw" class="btn icon-btn small" title="Gum">
     <svg class="ico"><use href="#i-eraser"></use></svg><span class="sr">Wissel</span>
   </button>
 
-  <div class="tool-sep"></div>
+  <div class="tool-sep"></div><div class="active-color-wrap"><span class="muted">Actieve kleur:</span><span id="activeColorDot" class="color-dot"></span><span id="activeColorName" class="active-color-name">rood</span></div></div>
 
   <button id="tbUndo" class="btn icon-btn small" title="Undo"><svg class="ico"><use href="#i-undo"></use></svg><span class="sr">Undo</span></button>
   <button id="tbRedo" class="btn icon-btn small" title="Redo"><svg class="ico"><use href="#i-redo"></use></svg><span class="sr">Redo</span></button>
