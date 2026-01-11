@@ -83,10 +83,13 @@ const App = (() => {
     refreshToolUI();
 
     const c = paletteMap().get(id);
-    const chip = document.getElementById("activeColorChip");
-    const name = document.getElementById("activeColorName");
-    chip.style.background = c?.hex || "#000";
-    name.textContent = c?.name || id;
+    const hex = (id === "white") ? "#ffffff" : (c?.hex || "#000000");
+
+    const chip = document.getElementById("activeColorDot") || document.getElementById("activeColorChip");
+    const nameEl = document.getElementById("activeColorName");
+
+    if(chip) chip.style.background = hex;
+    if(nameEl) nameEl.textContent = c?.name || id;
   }
 function pushUndo(changes){
     if(!changes || !changes.length) return;
