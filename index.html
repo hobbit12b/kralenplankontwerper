@@ -59,7 +59,21 @@
     <path d="M21 21l-4.3-4.3" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
     <circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2.2"/>
   </symbol>
+
+  <symbol id="i-line" viewBox="0 0 24 24">
+    <path d="M5 19L19 5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="i-rect" viewBox="0 0 24 24">
+    <rect x="5" y="6" width="14" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="2.2"/>
+  </symbol>
+  <symbol id="i-circle" viewBox="0 0 24 24">
+    <circle cx="12" cy="12" r="7" fill="none" stroke="currentColor" stroke-width="2.2"/>
+  </symbol>
+  <symbol id="i-triangle" viewBox="0 0 24 24">
+    <path d="M12 5l8 14H4L12 5Z" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/>
+  </symbol>
 </svg>
+
 
   <header class="topbar">
     <div class="brand">
@@ -116,17 +130,7 @@
         </details>
       </section>
 
-<section class="panel">
-  <div class="panel-title">Tools</div>
-  <div class="btn-row">
-    <button id="btnEraser" class="btn icon-btn"><svg class="ico"><use href="#i-eraser"></use></svg><span class="btn-label">Gum</span></button>
-    <button id="btnUndo" class="btn icon-btn"><svg class="ico"><use href="#i-undo"></use></svg><span class="btn-label">Undo</span></button>
-    <button id="btnRedo" class="btn icon-btn"><svg class="ico"><use href="#i-redo"></use></svg><span class="btn-label">Redo</span></button>
-  </div>
-  <div class="hint">Tip: klik op een kleur om weer te tekenen.</div>
-</section>
-
-      <section class="panel mini-panel">
+<section class="panel mini-panel">
         <div class="panel-title">Mini voorbeeld</div>
         <div id="miniPreview" class="mini-preview-host"></div>
         <div class="hint">Dit is je huidige kralenplank in het klein</div>
@@ -138,11 +142,28 @@
       <div class="board-wrap">
         <div class="board-toolbar">
           <div class="tool-row">
+  <button id="tbToggleDraw" class="btn icon-btn small" title="Gum">
+    <svg class="ico"><use href="#i-eraser"></use></svg><span class="sr">Wissel</span>
+  </button>
+
+  <div class="tool-sep"></div>
+
+  <button id="tbUndo" class="btn icon-btn small" title="Undo"><svg class="ico"><use href="#i-undo"></use></svg><span class="sr">Undo</span></button>
+  <button id="tbRedo" class="btn icon-btn small" title="Redo"><svg class="ico"><use href="#i-redo"></use></svg><span class="sr">Redo</span></button>
+
+  <div class="tool-sep"></div>
+
+  <button id="tbLine" class="btn icon-btn small" title="Lijn"><svg class="ico"><use href="#i-line"></use></svg><span class="sr">Lijn</span></button>
+  <button id="tbRect" class="btn icon-btn small" title="Rechthoek"><svg class="ico"><use href="#i-rect"></use></svg><span class="sr">Rechthoek</span></button>
+  <button id="tbCircle" class="btn icon-btn small" title="Cirkel"><svg class="ico"><use href="#i-circle"></use></svg><span class="sr">Cirkel</span></button>
+  <button id="tbTri" class="btn icon-btn small" title="Driehoek"><svg class="ico"><use href="#i-triangle"></use></svg><span class="sr">Driehoek</span></button>
+
+  <div class="tool-sep"></div>
+
   <button id="tbZoomOut" class="btn icon-btn small" title="Zoom uit"><svg class="ico"><use href="#i-zoom-out"></use></svg><span class="sr">Zoom uit</span></button>
   <input id="zoom" type="range" min="0.4" max="2.5" step="0.05" value="1" />
   <button id="tbZoomIn" class="btn icon-btn small" title="Zoom in"><svg class="ico"><use href="#i-zoom-in"></use></svg><span class="sr">Zoom in</span></button>
-
-  <div class="tool-sep"></div>
+</div>
 
   <button id="tbPaint" class="btn icon-btn small" title="Tekenen"><svg class="ico"><use href="#i-pen"></use></svg><span class="sr">Tekenen</span></button>
   <button id="tbEraser" class="btn icon-btn small" title="Gum"><svg class="ico"><use href="#i-eraser"></use></svg><span class="sr">Gum</span></button>

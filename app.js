@@ -9,6 +9,9 @@ const App = (() => {
     activeColorId: "red",
     
     activeTool: "paint",
+    toolMode: "paint",
+    shapeStart: null,
+    shapePreview: null,
     zoom: 1,
     undo: [],
     redo: [],
@@ -31,27 +34,41 @@ const App = (() => {
   }
 
   function refreshToolUI(){
-    const on = state.activeTool === "erase";
+    const mode = state.toolMode || "paint";
 
-    const btn = document.getElementById("btnEraser");
-    if(btn) btn.classList.toggle("btn-toggle-on", on);
+    const toggle = document.getElementById("tbToggleDraw");
+    if(toggle){
+      const u = toggle.querySelector("use");
+      // knop toont wat je KUNT kiezen (dus inverse)
+      const next = (mode === "erase") ? "paint" : "erase";
+      if(u) u.setAttribute("href", next === "erase" ? "#i-eraser" : "#i-pen");
+      toggle.setAttribute("title", next === "erase" ? "Gum" : "Tekenen");
+      toggle.classList.toggle("btn-toggle-on", mode === "paint" || mode === "erase");
+    }
 
-    const tb = document.getElementById("tbEraser");
-    if(tb) tb.classList.toggle("btn-toggle-on", on);
-
-    const paint = document.getElementById("tbPaint");
-    if(paint) paint.classList.toggle("btn-toggle-on", !on);
+    const mapping = [["tbLine","line"],["tbRect","rect"],["tbCircle","circle"],["tbTri","tri"]];
+    for(const [id, m] of mapping){
+      const b = document.getElementById(id);
+      if(b) b.classList.toggle("btn-toggle-on", mode === m);
+    }
   }
 
-  function setActiveTool(tool){
-    state.activeTool = tool;
+  function setActiveTool(mode){
+    state.toolMode = mode;
+    state.activeTool = (mode === "erase") ? "erase" : "paint";
+    state.shapeStart = null;
+    state.shapePreview = null;
+    shapeDrag = null;
+    drawing = null;
     refreshToolUI();
+    redrawBoard();
   }
 
   function setActiveColor(id){
     state.activeColorId = id;
 
     /* kleur kiezen betekent: weer tekenen */
+    state.toolMode = "paint";
     state.activeTool = "paint";
     refreshToolUI();
 
@@ -275,13 +292,132 @@ function serialize(){
     svg.addEventListener("pointermove", onPointerMove);
     window.addEventListener("pointerup", onPointerUp);
 
+    // preview overlay voor vormen
+    if(state.shapePreview && Array.isArray(state.shapePreview) && state.shapePreview.length){
+      const svgNS = "http://www.w3.org/2000/svg";
+      const layer = document.createElementNS(svgNS, "g");
+      layer.setAttribute("id","previewLayer");
+      layer.setAttribute("opacity","0.5");
+
+      const cell = state.boardSize / (N + 3);
+      const origin = 2 * cell;
+      const beadR = cell*0.36;
+      const holeR = beadR*0.28;
+
+      // kleur
+      const pm = paletteMap();
+      const c = pm.get(state.activeColorId);
+      const fill = (state.activeColorId === "white") ? "#ffffff" : (c?.hex || "#000000");
+
+      for(const p of state.shapePreview){
+        if(!p) continue;
+        const r = p.r, c2 = p.c;
+        if(r<0||r>=N||c2<0||c2>=N) continue;
+        const cx = origin + c2*cell;
+        const cy = origin + r*cell;
+
+        const bead = document.createElementNS(svgNS,"circle");
+        bead.setAttribute("cx", cx);
+        bead.setAttribute("cy", cy);
+        bead.setAttribute("r", beadR);
+        bead.setAttribute("fill", fill);
+        bead.setAttribute("stroke", "rgba(0,0,0,0.25)");
+        bead.setAttribute("stroke-width", Math.max(0.6, cell*0.03));
+        layer.appendChild(bead);
+
+        const hole = document.createElementNS(svgNS,"circle");
+        hole.setAttribute("cx", cx);
+        hole.setAttribute("cy", cy);
+        hole.setAttribute("r", holeR);
+        hole.setAttribute("fill", "rgba(255,255,255,0.35)");
+        layer.appendChild(hole);
+      }
+
+      svg.appendChild(layer);
+    }
+
     host.appendChild(svg);
     redrawMiniPreview();
   }
 
   let drawing = null;
+  let shapeDrag = null;
 
-  function hitTestCell(svg, clientX, clientY){
+  
+  function bresenham(r0,c0,r1,c1){
+    const pts = [];
+    let x0=c0, y0=r0, x1=c1, y1=r1;
+    let dx = Math.abs(x1-x0), sx = x0<x1 ? 1 : -1;
+    let dy = -Math.abs(y1-y0), sy = y0<y1 ? 1 : -1;
+    let err = dx + dy;
+    while(true){
+      pts.push({r:y0,c:x0});
+      if(x0===x1 && y0===y1) break;
+      const e2 = 2*err;
+      if(e2 >= dy){ err += dy; x0 += sx; }
+      if(e2 <= dx){ err += dx; y0 += sy; }
+    }
+    return pts;
+  }
+
+  function uniqPts(pts){
+    const s = new Set(), out=[];
+    for(const p of pts){
+      const k = p.r + "," + p.c;
+      if(s.has(k)) continue;
+      s.add(k); out.push(p);
+    }
+    return out;
+  }
+
+  function rectOutline(r0,c0,r1,c1){
+    const pts=[];
+    const rMin=Math.min(r0,r1), rMax=Math.max(r0,r1);
+    const cMin=Math.min(c0,c1), cMax=Math.max(c0,c1);
+    for(let c=cMin; c<=cMax; c++){ pts.push({r:rMin,c}); pts.push({r:rMax,c}); }
+    for(let r=rMin; r<=rMax; r++){ pts.push({r,c:cMin}); pts.push({r,c:cMax}); }
+    return uniqPts(pts);
+  }
+
+  function circleOutline(r0,c0,r1,c1){
+    const cr=r0, cc=c0;
+    const rad = Math.round(Math.hypot(r1-r0, c1-c0));
+    const pts=[];
+    let x=rad, y=0, err=0;
+    while(x>=y){
+      pts.push({r:cr+y,c:cc+x},{r:cr+x,c:cc+y},{r:cr+x,c:cc-y},{r:cr+y,c:cc-x},
+               {r:cr-y,c:cc-x},{r:cr-x,c:cc-y},{r:cr-x,c:cc+y},{r:cr-y,c:cc+x});
+      y++;
+      if(err<=0){ err += 2*y + 1; }
+      if(err>0){ x--; err -= 2*x + 1; }
+    }
+    return uniqPts(pts);
+  }
+
+  function triOutline(r0,c0,r1,c1){
+    const rMin=Math.min(r0,r1), rMax=Math.max(r0,r1);
+    const cMin=Math.min(c0,c1), cMax=Math.max(c0,c1);
+    const apexR=rMin, apexC=Math.round((cMin+cMax)/2);
+    const leftR=rMax, leftC=cMin;
+    const rightR=rMax, rightC=cMax;
+    const pts = []
+      .concat(bresenham(apexR,apexC,leftR,leftC))
+      .concat(bresenham(apexR,apexC,rightR,rightC))
+      .concat(bresenham(leftR,leftC,rightR,rightC));
+    return uniqPts(pts);
+  }
+
+  function pointsForShape(mode, start, end){
+    if(!start || !end) return [];
+    const {r:r0,c:c0}=start, {r:r1,c:c1}=end;
+    if(mode === "line") return bresenham(r0,c0,r1,c1);
+    if(mode === "rect") return rectOutline(r0,c0,r1,c1);
+    if(mode === "circle") return circleOutline(r0,c0,r1,c1);
+    if(mode === "tri") return triOutline(r0,c0,r1,c1);
+    return [];
+  }
+
+function hitTestCell(svg, clientX, clientY){
     const rect = svg.getBoundingClientRect();
 
     /* naar SVG viewBox pixels (0..boardSize) */
@@ -310,48 +446,111 @@ function serialize(){
     const hit = hitTestCell(svg, e.clientX, e.clientY);
     if(!hit) return;
 
-    const {r,c} = hit;
-    const cur = state.cells[r][c];
-    const active = state.activeColorId;
+    state.shapePreview = null;
 
-    let target = null;
+    const mode = state.toolMode || "paint";
 
-    if(state.activeTool === "erase"){
-      target = null;
-    } else {
-      target = active;
-      if(cur === active) target = null;
+    // paint / erase blijft zoals je gewend bent
+    if(mode === "paint" || mode === "erase"){
+      const {r,c} = hit;
+      const cur = state.cells[r][c];
+      const active = state.activeColorId;
+
+      let target = null;
+
+      if(mode === "erase"){
+        target = null;
+      } else {
+        target = active;
+        if(cur === active) target = null;
+      }
+
+      drawing = {
+        target,
+        visited: new Set(),
+        changes: []
+      };
+      shapeDrag = null;
+
+      paintCell(r,c);
+      e.preventDefault();
+      return;
     }
 
-    drawing = {
-      target,
-      visited: new Set(),
-      changes: []
-    };
-
-    paintCell(r,c);
+    // vormen
+    drawing = null;
+    shapeDrag = {mode, start: hit, end: hit};
+    state.shapeStart = hit;
+    state.shapePreview = pointsForShape(mode, hit, hit);
+    redrawBoard();
     e.preventDefault();
   }
 
+
   function onPointerMove(e){
-    if(!drawing) return;
+    if(drawing){
+      const svg = document.querySelector("#boardHost svg");
+      if(!svg) return;
+
+      const hit = hitTestCell(svg, e.clientX, e.clientY);
+      if(!hit) return;
+
+      paintCell(hit.r, hit.c);
+      e.preventDefault();
+      return;
+    }
+
+    if(!shapeDrag) return;
+
     const svg = document.querySelector("#boardHost svg");
     if(!svg) return;
 
     const hit = hitTestCell(svg, e.clientX, e.clientY);
     if(!hit) return;
 
-    paintCell(hit.r, hit.c);
+    shapeDrag.end = hit;
+    state.shapePreview = pointsForShape(shapeDrag.mode, shapeDrag.start, shapeDrag.end);
+    redrawBoard();
     e.preventDefault();
   }
 
+
   function onPointerUp(){
-    if(!drawing) return;
-    if(drawing.changes.length) pushUndo(drawing.changes);
-    drawing = null;
+    if(drawing){
+      if(drawing.changes.length) pushUndo(drawing.changes);
+      drawing = null;
+      return;
+    }
+
+    if(!shapeDrag) return;
+
+    const pts = pointsForShape(shapeDrag.mode, shapeDrag.start, shapeDrag.end);
+    applyShapePoints(pts);
+
+    shapeDrag = null;
+    state.shapeStart = null;
+    state.shapePreview = null;
+    redrawBoard();
   }
 
-  function paintCell(r,c){
+
+  
+  function applyShapePoints(points){
+    const changes = [];
+    for(const p of points){
+      if(!p) continue;
+      const r = p.r, c = p.c;
+      if(r<0||r>=N||c<0||c>=N) continue;
+      const from = state.cells[r][c];
+      const to = state.activeColorId;
+      if(from === to) continue;
+      state.cells[r][c] = to;
+      changes.push({r,c,from,to});
+    }
+    if(changes.length) pushUndo(changes);
+  }
+
+function paintCell(r,c){
     const key = r + "," + c;
     if(drawing.visited.has(key)) return;
     drawing.visited.add(key);
@@ -414,8 +613,8 @@ function serialize(){
 
     document.getElementById("btnNewFile").addEventListener("click", () => createNew());
 
-document.getElementById("btnUndo").addEventListener("click", () => undo());
-    document.getElementById("btnRedo").addEventListener("click", () => redo());
+document.getElementById("btnUndo")?.addEventListener("click", () => undo());
+    document.getElementById("btnRedo")?.addEventListener("click", () => redo());
 
     
     /* bovenbalk sneltoetsen */
