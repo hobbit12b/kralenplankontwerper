@@ -861,7 +861,7 @@ document.getElementById("btnApplyImport").addEventListener("click", async () => 
 
 function newProject(){ newDesign(); }
 
-function init(){
+async function init(){
     redrawPaletteBase();
     redrawPaletteExtras();
     setActiveColor(state.activeColorId);

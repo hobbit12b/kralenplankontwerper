@@ -504,11 +504,15 @@ body{
 .tool-row{
   display:flex;
   align-items:center;
+  flex-wrap:nowrap;
   gap:10px;
   padding:10px;
   border-radius:14px;
   background: rgba(255,255,255,0.8);
   border:1px solid rgba(0,0,0,0.08);
+
+  overflow-x:auto;
+  scrollbar-width:thin;
 }
 .tool-row input[type="range"]{
   flex: 1;
@@ -541,7 +545,7 @@ body{
   align-items:center;
   justify-content:space-between;
   gap:14px;
-  margin-bottom:10px;
+  margin-bottom:0px;
 }
 .active-color-wrap{
   display:flex;
@@ -561,3 +565,5 @@ body{
 }
 .active-color-name{ font-weight:600; }
 
+
+.btn-spacer{ height:44px; }

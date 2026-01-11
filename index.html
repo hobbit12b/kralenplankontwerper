@@ -91,11 +91,15 @@
   <div class="panel-title">Bestand</div>
   <div class="btn-grid">
     <button id="btnNew" class="btn icon-left"><svg class="ico"><use href="#i-new"></use></svg><span>Nieuw</span></button>
-    <button id="btnOpen" class="btn icon-left"><svg class="ico"><use href="#i-folder"></use></svg><span>Open</span></button>
-    <button id="btnSave" class="btn icon-left"><svg class="ico"><use href="#i-save"></use></svg><span>Opslaan</span></button>
     <button id="btnImportImage" class="btn icon-left"><svg class="ico"><use href="#i-import"></use></svg><span>Importeer foto of illustratie</span></button>
+
+    <button id="btnOpen" class="btn icon-left"><svg class="ico"><use href="#i-open"></use></svg><span>Open</span></button>
+    <button id="btnSave" class="btn icon-left"><svg class="ico"><use href="#i-save"></use></svg><span>Opslaan</span></button>
+
     <button id="btnPrint" class="btn icon-left"><svg class="ico"><use href="#i-print"></use></svg><span>Print</span></button>
+    <div class="btn-spacer" aria-hidden="true"></div>
   </div>
+</div>
   <div class="muted tip">Tip: voor ware grootte kies in het printvenster: Ware grootte.</div>
 </section>
 
@@ -137,41 +141,38 @@
     <section class="stage">
       <div class="board-wrap">
         <div class="board-toolbar">
-          <div class="toolbar-top"><div class="tool-row">
-  <button id="tbToggleDraw" class="btn icon-btn small" title="Gum">
-    <svg class="ico"><use href="#i-eraser"></use></svg><span class="sr">Wissel</span>
-  </button>
+  <div class="toolbar-top">
+    <div class="tool-row">
+      <button id="tbToggleDraw" class="btn icon-btn small" title="Gum">
+        <svg class="ico"><use href="#i-eraser"></use></svg><span class="sr">Wissel</span>
+      </button>
 
-  <div class="tool-sep"></div><div class="active-color-wrap"><span class="muted">Actieve kleur:</span><span id="activeColorDot" class="color-dot"></span><span id="activeColorName" class="active-color-name">rood</span></div></div>
+      <div class="tool-sep"></div>
 
-  <button id="tbUndo" class="btn icon-btn small" title="Undo"><svg class="ico"><use href="#i-undo"></use></svg><span class="sr">Undo</span></button>
-  <button id="tbRedo" class="btn icon-btn small" title="Redo"><svg class="ico"><use href="#i-redo"></use></svg><span class="sr">Redo</span></button>
+      <button id="tbUndo" class="btn icon-btn small" title="Undo"><svg class="ico"><use href="#i-undo"></use></svg><span class="sr">Undo</span></button>
+      <button id="tbRedo" class="btn icon-btn small" title="Redo"><svg class="ico"><use href="#i-redo"></use></svg><span class="sr">Redo</span></button>
 
-  <div class="tool-sep"></div>
+      <div class="tool-sep"></div>
 
-  <button id="tbLine" class="btn icon-btn small" title="Lijn"><svg class="ico"><use href="#i-line"></use></svg><span class="sr">Lijn</span></button>
-  <button id="tbRect" class="btn icon-btn small" title="Rechthoek"><svg class="ico"><use href="#i-rect"></use></svg><span class="sr">Rechthoek</span></button>
-  <button id="tbCircle" class="btn icon-btn small" title="Cirkel"><svg class="ico"><use href="#i-circle"></use></svg><span class="sr">Cirkel</span></button>
-  <button id="tbTri" class="btn icon-btn small" title="Driehoek"><svg class="ico"><use href="#i-triangle"></use></svg><span class="sr">Driehoek</span></button>
+      <button id="tbLine" class="btn icon-btn small" title="Lijn"><svg class="ico"><use href="#i-line"></use></svg><span class="sr">Lijn</span></button>
+      <button id="tbRect" class="btn icon-btn small" title="Rechthoek"><svg class="ico"><use href="#i-rect"></use></svg><span class="sr">Rechthoek</span></button>
+      <button id="tbCircle" class="btn icon-btn small" title="Cirkel"><svg class="ico"><use href="#i-circle"></use></svg><span class="sr">Cirkel</span></button>
+      <button id="tbTri" class="btn icon-btn small" title="Driehoek"><svg class="ico"><use href="#i-triangle"></use></svg><span class="sr">Driehoek</span></button>
 
-  <div class="tool-sep"></div>
+      <div class="tool-sep"></div>
 
-  <button id="tbZoomOut" class="btn icon-btn small" title="Zoom uit"><svg class="ico"><use href="#i-zoom-out"></use></svg><span class="sr">Zoom uit</span></button>
-  <input id="zoom" type="range" min="0.4" max="2.5" step="0.05" value="1" />
-  <button id="tbZoomIn" class="btn icon-btn small" title="Zoom in"><svg class="ico"><use href="#i-zoom-in"></use></svg><span class="sr">Zoom in</span></button>
+      <button id="tbZoomOut" class="btn icon-btn small" title="Zoom uit"><svg class="ico"><use href="#i-zoom-out"></use></svg><span class="sr">Zoom uit</span></button>
+      <input id="zoom" type="range" min="0.4" max="2.5" step="0.05" value="1" />
+      <button id="tbZoomIn" class="btn icon-btn small" title="Zoom in"><svg class="ico"><use href="#i-zoom-in"></use></svg><span class="sr">Zoom in</span></button>
+    </div>
+
+    <div class="active-color-wrap" aria-label="Actieve kleur">
+      <span class="muted">Actieve kleur:</span>
+      <span id="activeColorDot" class="color-dot"></span>
+      <span id="activeColorName" class="active-color-name">rood</span>
+    </div>
+  </div>
 </div>
-
-  <button id="tbPaint" class="btn icon-btn small" title="Tekenen"><svg class="ico"><use href="#i-pen"></use></svg><span class="sr">Tekenen</span></button>
-  <button id="tbEraser" class="btn icon-btn small" title="Gum"><svg class="ico"><use href="#i-eraser"></use></svg><span class="sr">Gum</span></button>
-  <button id="tbUndo" class="btn icon-btn small" title="Undo"><svg class="ico"><use href="#i-undo"></use></svg><span class="sr">Undo</span></button>
-  <button id="tbRedo" class="btn icon-btn small" title="Redo"><svg class="ico"><use href="#i-redo"></use></svg><span class="sr">Redo</span></button>
-</div>
-          <div class="active-color-row">
-            <div>Actieve kleur:</div>
-            <div id="activeColorChip" class="chip"></div>
-            <div id="activeColorName" class="active-name"></div>
-          </div>
-        </div>
 
         <div id="boardHost" class="board-host"></div>
       </div>
