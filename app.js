@@ -627,7 +627,7 @@ function paintCell(r,c){
     });
 
     const bNew = $("btnNew") || $("btnNewFile");
-    if(bNew) bNew.addEventListener("click", () => createNew());
+    if(bNew) bNew.addEventListener("click", () => { if(typeof createNew==="function") createNew(); else if(typeof newProject==="function") newProject(); });
 document.getElementById("btnUndo")?.addEventListener("click", () => undo());
     document.getElementById("btnRedo")?.addEventListener("click", () => redo());
 
@@ -865,6 +865,8 @@ $("btnApplyImport")?.addEventListener("click", async () => {
 
 function newProject(){ newDesign(); }
 
+
+  function createNew(){ newProject(); }
 async function init(){
     redrawPaletteBase();
     redrawPaletteExtras();
