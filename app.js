@@ -418,8 +418,6 @@ function serialize(){
 
     return uniqPts(pts);
   }
-    return uniqPts(pts);
-  }
 
   function triOutline(r0,c0,r1,c1){
     const rMin=Math.min(r0,r1), rMax=Math.max(r0,r1);
