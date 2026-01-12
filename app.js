@@ -870,6 +870,8 @@ document.getElementById("btnImportPhoto")?.addEventListener("click", () => { clo
 }
 
   function setImportPreset(mode){
+  window.__importKind = mode;
+
     const illBtn = document.getElementById("presetIllustration");
     const phBtn = document.getElementById("presetPhoto");
 if(mode === "illustration"){
@@ -911,9 +913,7 @@ if(mode === "illustration"){
     const img = window.__importImage;
     if(!img) return;
 
-    const mode = document.getElementById("presetIllustration").classList.contains("primary")
-      ? "illustration"
-      : "photo";
+    const mode = window.__importKind || "illustration";
 
     window.__importSettings = readImportSettings(mode);
 
@@ -923,7 +923,9 @@ if(mode === "illustration"){
     const grid = ImportEngine.build19x19FromImage(img, window.__importSettings, pal);
 
     const host = document.getElementById("importPreviewHost");
-    host.innerHTML = "";
+    
+  if(!host) return;
+host.innerHTML = "";
     const pm = new Map(pal.map(c => [c.id, c]));
     const svg = ImportEngine.renderRoundBeadsSVG(grid, pm, 520);
     host.appendChild(svg);
@@ -980,7 +982,11 @@ function closeImportModal(){
 }
 
 function pickImportFile(kind){
+  window.__importKind = kind;
+
   // kind: "illustration" | "photo"
+  state.importKind = kind;
+
   const input = document.getElementById("importFile") || document.getElementById("fileInputHidden") || document.getElementById("fileInput");
   if(!input) return;
 
