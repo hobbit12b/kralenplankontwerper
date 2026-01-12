@@ -625,7 +625,7 @@ function paintCell(r,c){
   }
 
   async function renderRecents(){
-    const list = await StorageProvider.listDesigns(9);
+    const list = await StorageProvider.listDesigns(3);
     const host = document.getElementById("recents");
     host.innerHTML = "";
 
@@ -981,8 +981,6 @@ function closeImportModal(){
 
 function pickImportFile(kind){
   // kind: "illustration" | "photo"
-  state.importKind = kind;
-
   const input = document.getElementById("importFile") || document.getElementById("fileInputHidden") || document.getElementById("fileInput");
   if(!input) return;
 
