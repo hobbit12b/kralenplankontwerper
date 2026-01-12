@@ -567,3 +567,43 @@ body{
 
 
 .btn-spacer{ height:44px; }
+
+.modal-overlay{
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.22);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  z-index: 9999;
+}
+.modal-overlay.open{ display:flex; }
+.modal{
+  width: min(560px, 100%);
+  background: #fff;
+  border: 1px solid #e6e6e6;
+  border-radius: 14px;
+  box-shadow: 0 16px 40px rgba(0,0,0,.18);
+}
+.modal-head{
+  display:flex;
+  align-items:center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 14px 10px 14px;
+  border-bottom: 1px solid #eee;
+}
+.modal-title{ font-weight: 700; }
+.modal-body{ padding: 14px; }
+.import-choice{
+  display:flex;
+  gap: 12px;
+}
+.btn.big{
+  flex:1;
+  padding: 12px 14px;
+  font-weight: 700;
+}
+.hidden-input{ display:none; }
+.small{ font-size: 12px; }

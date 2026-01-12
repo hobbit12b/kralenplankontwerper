@@ -860,15 +860,21 @@ $("btnApplyImport")?.addEventListener("click", async () => {
       downloadJSON(design, fn);
     });
 
+
+    /* Import modal flow */
+    document.getElementById("btnImportImage")?.addEventListener("click", () => {
+      openImportModal();
+    });
+            document.getElementById("btnImportIllustration")?.addEventListener("click", () => { closeImportModal(); if(typeof setImportPreset==="function") setImportPreset("illustration"); pickImportFile("illustration"); });
+document.getElementById("btnImportPhoto")?.addEventListener("click", () => { closeImportModal(); if(typeof setImportPreset==="function") setImportPreset("photo"); pickImportFile("photo"); });
 }
 
   function setImportPreset(mode){
     const illBtn = document.getElementById("presetIllustration");
     const phBtn = document.getElementById("presetPhoto");
-
-    if(mode === "illustration"){
-      illBtn.classList.add("primary");
-      phBtn.classList.remove("primary");
+if(mode === "illustration"){
+      if(illBtn) illBtn.classList.add("primary");
+      if(phBtn) phBtn.classList.remove("primary");
       document.getElementById("useEdges").checked = false;
       document.getElementById("placeWhite").checked = false;
       document.getElementById("bgThreshold").value = 62;
@@ -876,8 +882,8 @@ $("btnApplyImport")?.addEventListener("click", async () => {
       document.getElementById("edgeStrength").value = 55;
       document.getElementById("edgeStrengthRow").style.display = document.getElementById("useEdges").checked ? "flex" : "none";
     } else {
-      illBtn.classList.remove("primary");
-      phBtn.classList.add("primary");
+      if(illBtn) illBtn.classList.remove("primary");
+      if(phBtn) phBtn.classList.add("primary");
       document.getElementById("useEdges").checked = false;
       document.getElementById("placeWhite").checked = false;
       document.getElementById("bgThreshold").value = 50;
@@ -958,3 +964,29 @@ async function init(){
 })();
 
 window.addEventListener("DOMContentLoaded", () => App.init());
+
+
+function openImportModal(){
+  const d = document.getElementById("importDialog") || document.getElementById("importModal");
+  if(!d) return;
+  if(typeof d.showModal === "function") d.showModal();
+  else d.classList.add("open");
+}
+function closeImportModal(){
+  const d = document.getElementById("importDialog") || document.getElementById("importModal");
+  if(!d) return;
+  if(typeof d.close === "function") d.close();
+  else d.classList.remove("open");
+}
+
+function pickImportFile(kind){
+  // kind: "illustration" | "photo"
+  state.importKind = kind;
+
+  const input = document.getElementById("importFile") || document.getElementById("fileInputHidden") || document.getElementById("fileInput");
+  if(!input) return;
+
+  // Reset so same file twice still triggers change
+  input.value = "";
+  input.click();
+}

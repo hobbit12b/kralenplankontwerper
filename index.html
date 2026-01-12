@@ -188,12 +188,16 @@
 
       <div class="modal-body">
         <div class="import-left">
-          <input id="importFile" type="file" accept="image/*" />
+          <input id="importFile" type="file" accept="image/*" class="hidden-input" />
+          <div class="import-question">Wat wil je importeren?</div>
+          <div class="import-choice">
+            <button type="button" class="btn big" id="btnImportIllustration">Illustratie</button>
+            <button type="button" class="btn big" id="btnImportPhoto">Foto</button>
+          </div>
+
 
           <div class="preset-row">
-            <button type="button" id="presetIllustration" class="btn primary">Illustratie</button>
-            <button type="button" id="presetPhoto" class="btn">Foto</button>
-          </div>
+            </div>
 
           <div class="toggle-row">
             <label class="toggle">
@@ -250,5 +254,6 @@
   <script src="storage.js"></script>
   <script src="import.js"></script>
   <script src="app.js"></script>
+<input id="fileInput" type="file" accept="image/*" class="hidden-input">
 </body>
 </html>
