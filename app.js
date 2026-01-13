@@ -909,9 +909,32 @@ if(mode === "illustration"){
     };
   }
 
+  function drawImageCover(ctx, img, w, h){
+    const iw = img.naturalWidth || img.width;
+    const ih = img.naturalHeight || img.height;
+    if(!iw || !ih) return;
+    const scale = Math.max(w / iw, h / ih);
+    const sw = w / scale;
+    const sh = h / scale;
+    const sx = (iw - sw) / 2;
+    const sy = (ih - sh) / 2;
+    ctx.clearRect(0,0,w,h);
+    ctx.imageSmoothingEnabled = true;
+    ctx.drawImage(img, sx, sy, sw, sh, 0, 0, w, h);
+  }
+
   function updateImportPreview(){
     const img = window.__importImage;
-    if(!img) return;
+    if(!img){
+      const host = document.getElementById("importPreviewHost");
+      if(host) host.innerHTML = "";
+      const srcCanvas = document.getElementById("importSrcCanvas");
+      if(srcCanvas){
+        const ctx = srcCanvas.getContext('2d');
+        if(ctx) ctx.clearRect(0,0,srcCanvas.width,srcCanvas.height);
+      }
+      return;
+    }
 
     const mode = window.__importKind || "illustration";
 
@@ -921,6 +944,15 @@ if(mode === "illustration"){
     const pal = allowExtras ? paletteAll() : BasePalette;
 
     const grid = ImportEngine.build19x19FromImage(img, window.__importSettings, pal);
+
+    const srcCanvas = document.getElementById("importSrcCanvas");
+    if(srcCanvas){
+      const size = 600;
+      srcCanvas.width = size;
+      srcCanvas.height = size;
+      const ctx = srcCanvas.getContext('2d');
+      if(ctx) drawImageCover(ctx, img, size, size);
+    }
 
     const host = document.getElementById("importPreviewHost");
     
