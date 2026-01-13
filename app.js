@@ -985,7 +985,6 @@ function pickImportFile(kind){
   window.__importKind = kind;
 
   // kind: "illustration" | "photo"
-  state.importKind = kind;
 
   const input = document.getElementById("importFile") || document.getElementById("fileInputHidden") || document.getElementById("fileInput");
   if(!input) return;
