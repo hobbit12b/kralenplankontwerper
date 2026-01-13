@@ -253,7 +253,8 @@ body{
 }
 
 .modal{
-  width: min(980px, 96vw);
+  /* Breder: zodat het previewvenster volledig in beeld staat op een groot scherm */
+  width: min(1240px, 96vw);
   border:none;
   border-radius:16px;
   background: var(--panel);
@@ -273,7 +274,8 @@ body{
 
 .modal-body{
   display:grid;
-  grid-template-columns: 360px 1fr;
+  /* Iets ruimere linker kolom, extra ruimte voor preview rechts */
+  grid-template-columns: 420px 1fr;
   gap:16px;
 }
 .import-left{
@@ -288,6 +290,9 @@ body{
   background: var(--panel2);
   padding:12px;
 }
+
+/* Preview kolom nooit te smal op desktop */
+.import-right{ min-width: 560px; }
 .preset-row{
   display:flex;
   gap:10px;
@@ -608,6 +613,7 @@ body{
 
 @media (max-width: 900px){
   .modal-body{ grid-template-columns: 1fr !important; }
+  .import-right{ min-width: auto; }
   .preview-canvas{ height: 160px; }
   .preview-block.preview-beads .preview-host{ min-height: 420px; }
 }

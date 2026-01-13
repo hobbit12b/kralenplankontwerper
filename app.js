@@ -865,8 +865,17 @@ $("btnApplyImport")?.addEventListener("click", async () => {
     document.getElementById("btnImportImage")?.addEventListener("click", () => {
       openImportModal();
     });
-            document.getElementById("btnImportIllustration")?.addEventListener("click", () => { closeImportModal(); if(typeof setImportPreset==="function") setImportPreset("illustration"); pickImportFile("illustration"); });
-document.getElementById("btnImportPhoto")?.addEventListener("click", () => { closeImportModal(); if(typeof setImportPreset==="function") setImportPreset("photo"); pickImportFile("photo"); });
+            // Keep the import modal open while selecting a file.
+            // After file selection, the preview should update immediately inside the same modal.
+            document.getElementById("btnImportIllustration")?.addEventListener("click", () => {
+              if(typeof setImportPreset === "function") setImportPreset("illustration");
+              pickImportFile("illustration");
+            });
+
+            document.getElementById("btnImportPhoto")?.addEventListener("click", () => {
+              if(typeof setImportPreset === "function") setImportPreset("photo");
+              pickImportFile("photo");
+            });
 }
 
   function setImportPreset(mode){
